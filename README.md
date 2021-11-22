@@ -1,3 +1,18 @@
+
+# Implementing new feature:
+Kleycloak secured api
+
+How to setup the development environment:
+https://github.com/chanzuckerberg/cellxgene/blob/main/dev_docs/developer_guidelines.md#server-dev
+
+ToDos:
+- [ ] Add a way to require keycloak authentication for loading a dataset
+
+
+---
+
+Original cellxgene README:
+
 <img src="./docs/cellxgene-logo.png" width="300">
 
 _an interactive explorer for single-cell transcriptomics data_
