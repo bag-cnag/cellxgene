@@ -48,3 +48,5 @@ else:
     from .prepare import prepare
     from .upgrade import log_upgrade_check
     from .. import __version__
+    cli.add_command(launch)
+    cli.add_command(prepare)

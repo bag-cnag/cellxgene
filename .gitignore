@@ -55,6 +55,11 @@ client/.eslintcache
 # E2E Testing
 ignoreE2E*
 
-# CNAG config
+# CNAG specific files
 server/app/kc_config.py
 server/app/CNAG_security.py
+cnag_getKCTokens.sh
+kc.env
+.env
+vscode.env
+cnag.mk

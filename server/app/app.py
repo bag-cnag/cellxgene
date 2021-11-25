@@ -18,8 +18,7 @@ from server.common.errors import DatasetAccessError, RequestException
 from server.common.health import health_check
 from server.common.utils.utils import StrictJSONEncoder
 
-from server.app.CNAG_security import cnag_login_required
-from flask_debugtoolbar import DebugToolbarExtension # cnag
+#from flask_debugtoolbar import DebugToolbarExtension # cnag
 
 webbp = Blueprint("webapp", "server.common.web", template_folder="templates")
 
@@ -107,16 +106,8 @@ class SchemaAPI(Resource):
     """
     # TODO (cellxgene) @mdunitz separate dataset schema and user schema 
     # TODO (CNAG) add an authentication decorator
-    # @cache_control(public=True, max_age=ONE_WEEK)
-    # @cnag_login_required
-    # @rest_get_data_adaptor
-    # def get(self, userid, groups, projects, data_adaptor):
-    #     return common_rest.schema_get(data_adaptor)
-
-    # CNAG
     @cache_control(public=True, max_age=ONE_WEEK)
     @rest_get_data_adaptor
-    # @cnag_login_required
     def get(self, data_adaptor):
         return common_rest.schema_get(data_adaptor)
 

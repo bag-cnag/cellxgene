@@ -1,4 +1,5 @@
 include common.mk
+include cnag.mk
 
 BUILDDIR := build
 CLIENTBUILD := $(BUILDDIR)/client
