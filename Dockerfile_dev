@@ -1,0 +1,28 @@
+# ---- Base Node ----
+FROM python:3.8-slim AS base
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE 1
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && \
+    apt-get install -y \
+	npm
+
+# ---- build ----
+FROM base AS build
+
+ADD . /cellxgene
+WORKDIR /cellxgene/client
+RUN npm install build
+
+WORKDIR /cellxgene
+RUN cp client/build/index.html server/common/web/templates/ && \
+	cp -r client/build/static server/common/web/
+
+RUN pip install -e .
+
+# ---- run ----
+FROM build as run
+
+EXPOSE 5005

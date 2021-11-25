@@ -54,3 +54,7 @@ client/.eslintcache
 
 # E2E Testing
 ignoreE2E*
+
+# CNAG config
+server/app/kc_config.py
+server/app/CNAG_security.py

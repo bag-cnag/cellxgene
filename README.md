@@ -6,6 +6,8 @@ How to setup the development environment:
 https://github.com/chanzuckerberg/cellxgene/blob/main/dev_docs/developer_guidelines.md#server-dev
 
 ToDos:
+- [ ] Set up a development environment
+- [ ] Figure out how to attach a debugger to the server
 - [ ] Add a way to require keycloak authentication for loading a dataset
 
 

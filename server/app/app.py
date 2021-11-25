@@ -18,6 +18,9 @@ from server.common.errors import DatasetAccessError, RequestException
 from server.common.health import health_check
 from server.common.utils.utils import StrictJSONEncoder
 
+from server.app.CNAG_security import cnag_login_required
+from flask_debugtoolbar import DebugToolbarExtension # cnag
+
 webbp = Blueprint("webapp", "server.common.web", template_folder="templates")
 
 ONE_WEEK = 7 * 24 * 60 * 60
@@ -48,12 +51,12 @@ def _cache_control(always, **cache_kwargs):
 
 
 def cache_control(**cache_kwargs):
-    """ config driven """
+    """config driven"""
     return _cache_control(False, **cache_kwargs)
 
 
 def cache_control_always(**cache_kwargs):
-    """ always generate headers, regardless of the config """
+    """always generate headers, regardless of the config"""
     return _cache_control(True, **cache_kwargs)
 
 
@@ -79,7 +82,6 @@ def dataset_index():
 def handle_request_exception(error):
     return common_rest.abort_and_log(error.status_code, error.message, loglevel=logging.INFO, include_exc_info=True)
 
-
 def rest_get_data_adaptor(func):
     @wraps(func)
     def wrapped_function(self):
@@ -92,7 +94,6 @@ def rest_get_data_adaptor(func):
 
     return wrapped_function
 
-
 class HealthAPI(Resource):
     @cache_control_always(no_store=True)
     def get(self):
@@ -101,12 +102,23 @@ class HealthAPI(Resource):
 
 
 class SchemaAPI(Resource):
-    # TODO @mdunitz separate dataset schema and user schema
+    """
+    used to get the dataset schema
+    """
+    # TODO (cellxgene) @mdunitz separate dataset schema and user schema 
+    # TODO (CNAG) add an authentication decorator
+    # @cache_control(public=True, max_age=ONE_WEEK)
+    # @cnag_login_required
+    # @rest_get_data_adaptor
+    # def get(self, userid, groups, projects, data_adaptor):
+    #     return common_rest.schema_get(data_adaptor)
+
+    # CNAG
     @cache_control(public=True, max_age=ONE_WEEK)
     @rest_get_data_adaptor
+    # @cnag_login_required
     def get(self, data_adaptor):
         return common_rest.schema_get(data_adaptor)
-
 
 class ConfigAPI(Resource):
     @cache_control(public=True, max_age=ONE_WEEK)
@@ -228,11 +240,15 @@ def get_api_dataroot_resources(bp_dataroot):
 class Server:
     @staticmethod
     def _before_adding_routes(app, app_config):
-        """ will be called before routes are added, during __init__.  Subclass protocol """
+        """will be called before routes are added, during __init__.  Subclass protocol"""
         pass
 
     def __init__(self, app_config):
         self.app = Flask(__name__, static_folder=None)
+        
+        # https://stackoverflow.com/questions/36557349/flask-debugtoolbar-not-showing
+        # self.toolbar = DebugToolbarExtension(self.app) # cnag try to add toolbar
+
         self._before_adding_routes(self.app, app_config)
         self.app.json_encoder = StrictJSONEncoder
         server_config = app_config.server_config
@@ -241,7 +257,8 @@ class Server:
         self.app.permanent_session_lifetime = datetime.timedelta(days=50 * 365)
 
         # Config
-        secret_key = server_config.app__flask_secret_key
+        secret_key = server_config.app__flask_secret_key 
+
         self.app.config.update(SECRET_KEY=secret_key)
 
         self.app.register_blueprint(webbp)
@@ -265,3 +282,6 @@ class Server:
 
         self.app.data_adaptor = server_config.data_adaptor
         self.app.app_config = app_config
+        
+        # toolbar=DebugToolbarExtension()
+        # toolbar.init_app(self.app)
