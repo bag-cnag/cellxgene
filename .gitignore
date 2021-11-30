@@ -54,3 +54,11 @@ client/.eslintcache
 
 # E2E Testing
 ignoreE2E*
+
+# CNAG specific files
+
+# make sure that this does NEVER end up in the repo
+# because there could be the secret of ceph be inside
+.vscode/launch.json
+.env
+cnag.mk
