@@ -4,7 +4,7 @@ import click
 import requests
 from requests.exceptions import ConnectionError
 
-from .. import __version__
+# from .. import __version__
 
 # Official SemVer regex: https://semver.org/
 SEMVER_FORMAT = re.compile(
@@ -16,13 +16,13 @@ SEMVER_FORMAT = re.compile(
 
 def log_upgrade_check():
     # Sanity-check that the CLI version is a properly-formatted SemVer string
-    assert validate_version_str(__version__, release_only=False)
+    assert validate_version_str("1.0.0", release_only=False)
 
     # Get the current latest release
     try:
         release_tag_generator = (r["tag_name"] for r in _request_cellxgene_releases())
         latest_release = next(release_tag_generator, lambda tag_name: validate_version_str(tag_name))
-        if version_gt(latest_release, __version__):
+        if version_gt(latest_release,"1.0.0"):
             click.echo(f"There's a new version of cellxgene available ({latest_release})!", err=True)
             click.echo("To upgrade, run the following: pip install --upgrade cellxgene\n", err=True)
     except (ConnectionError, RateLimitException):
