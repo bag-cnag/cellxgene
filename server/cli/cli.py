@@ -51,6 +51,8 @@ else:
     from .launch import launch
     from .prepare import prepare
     from .upgrade import log_upgrade_check
+    from .convert_to_cxg import convert_to_cxg
+    from .schema import schema_cli
     from .. import __version__
     cli.add_command(launch)
     cli.add_command(prepare)

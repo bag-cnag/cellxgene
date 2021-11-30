@@ -61,4 +61,17 @@ ignoreE2E*
 # because there could be the secret of ceph be inside
 .vscode/launch.json
 .env
+kc.env
+vscode.env
 cnag.mk
+cnag_getKCTokens.sh
+
+#server new files
+server/app/kc_config.py
+server/app/CNAG_security.py
+
+#client new files
+client/configuration/webpack/config.json
+client/configuration/webpack/config.prod.json
+client/src/components/cnag_login.js
+client/src/components/cnag_auth.js

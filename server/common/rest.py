@@ -22,6 +22,8 @@ from server.common.errors import (
 import json
 from server.data_common.fbs.matrix import decode_matrix_fbs
 
+from server.app.CNAG_security import cnag_login_required
+
 
 def abort_and_log(code, logmsg, loglevel=logging.DEBUG, include_exc_info=False):
     """
@@ -113,6 +115,13 @@ def schema_get_helper(data_adaptor):
     return schema
 
 
+# TODO 
+# in app.js figure out where the request to 
+# schema_get is triggered and how to hand to it the
+# the correct keycloak authorization
+
+# @cnag_login_required
+# def schema_get(data_adaptor,userid, groups, projects):
 def schema_get(data_adaptor):
     schema = schema_get_helper(data_adaptor)
     return make_response(jsonify({"schema": schema}), HTTPStatus.OK)

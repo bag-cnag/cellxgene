@@ -16,10 +16,14 @@ import TermsOfServicePrompt from "./termsPrompt";
 
 import actions from "../actions";
 
+// needed for kc login
+import Login from "./cnag_login";
+
 @connect((state) => ({
   loading: state.controls.loading,
   error: state.controls.error,
   graphRenderCounter: state.controls.graphRenderCounter,
+  loggedIn: state.controls.loggedIn
 }))
 class App extends React.Component {
   componentDidMount() {
@@ -28,6 +32,12 @@ class App extends React.Component {
     /* listen for url changes, fire one when we start the app up */
     window.addEventListener("popstate", this._onURLChanged);
     this._onURLChanged();
+
+    // TODO
+    // only allow doInitalDataLoad if user is logged in via Keycloak
+    // if (cnag_auth.user.authenticated) {
+      // dispatch(actions.doInitialDataLoad(window.location.search));
+    // }
 
     dispatch(actions.doInitialDataLoad(window.location.search));
     this.forceUpdate();
@@ -40,10 +50,13 @@ class App extends React.Component {
   }
 
   render() {
-    const { loading, error, graphRenderCounter } = this.props;
+    const { loading, error, graphRenderCounter, loggedIn } = this.props;
     return (
       <Container>
         <Helmet title="cellxgene" />
+        {loggedIn ? null : (
+            <Login />
+        )}
         {loading ? (
           <div
             style={{
@@ -68,7 +81,7 @@ class App extends React.Component {
             error loading cellxgene
           </div>
         ) : null}
-        {loading || error ? null : (
+        {loading || error ||loggedIn ? null : (
           <Layout>
             <LeftSideBar />
             {(viewportRef) => (

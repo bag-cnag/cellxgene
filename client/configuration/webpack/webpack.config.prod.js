@@ -18,6 +18,15 @@ const fonts = path.resolve("src/fonts");
 const nodeModules = path.resolve("node_modules");
 
 const prodConfig = {
+  // https://stackoverflow.com/questions/30568796/how-to-store-configuration-file-and-read-it-using-react
+  externals: {
+    'Config': JSON.stringify(
+      process.env.NODE_ENV === "production"
+        ? require("./config.prod.json")
+        : require("./config.json")
+    ),
+  },
+
   mode: "production",
   bail: true,
   cache: false,
