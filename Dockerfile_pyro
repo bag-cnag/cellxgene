@@ -1,0 +1,47 @@
+# ---- Base Node ----
+FROM python:3.8-slim AS base
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE 1
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && \
+    apt-get install -y \
+	curl
+
+# Node version needs to be downgraded otherwise it runs into an node-gyp rebuild error
+# https://github.com/nodejs/node-gyp/issues/809#issuecomment-500220804
+ENV NODE_VERSION=11.10.0
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+ENV NVM_DIR=/root/.nvm
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+RUN node --version
+RUN npm --version
+
+# ---- build ----
+FROM base AS build
+
+ADD . /cellxgene
+WORKDIR /cellxgene/client
+
+RUN npm -f install build
+
+WORKDIR /cellxgene
+# This is only working if on the machine creating the docker cotainer
+# make build-for-server-dev has been run
+RUN cp client/build/index.html server/common/web/templates/ && \
+	cp -r client/build/static server/common/web/
+
+RUN pip install -e . --no-cache-dir 
+
+# ---- pyroscope ----
+# https://medium.com/dabbler-in-de-stress/how-pyroscope-saved-me-weeks-of-wasted-effort-dc99aeaf29e9
+COPY --from=pyroscope/pyroscope:latest /usr/bin/pyroscope /usr/bin/pyroscope
+
+# ---- run ----
+FROM build as run
+
+EXPOSE 5005

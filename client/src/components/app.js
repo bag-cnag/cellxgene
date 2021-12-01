@@ -39,6 +39,9 @@ class App extends React.Component {
       // dispatch(actions.doInitialDataLoad(window.location.search));
     // }
 
+    // TODO figure out where
+    // the post request to get_schema (server/common/rest.py) is coming from
+
     dispatch(actions.doInitialDataLoad(window.location.search));
     this.forceUpdate();
   }

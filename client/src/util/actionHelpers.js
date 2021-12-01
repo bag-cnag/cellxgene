@@ -34,6 +34,45 @@ export function catchErrorsWrap(fn, dispatchToUser = false) {
 Wrapper to perform async fetch with some modest error handling
 and decoding.
 */
+
+// see 3TR-client apis.js
+
+// export function test(token, urlprefix) {
+//   return fetch(`${urlprefix}api/tokentest`, {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Accept: "application/json",
+//       Authorization: token,
+//     },
+//   });
+// }
+
+
+// const doFetch = async (url, acceptType,token) => {
+//   try {
+//     const res = await fetch(url, {
+//       method: "get",
+//       headers: new Headers({
+//         Accept: acceptType,
+//       }),
+//       credentials: "include",
+//     });
+//     if (res.ok && res.headers.get("Content-Type").includes(acceptType)) {
+//       return res;
+//     }
+//     // else an error
+//     const msg = `Unexpected HTTP response ${res.status}, ${res.statusText}`;
+//     dispatchNetworkErrorMessageToUser(msg);
+//     throw new Error(msg);
+//   } catch (e) {
+//     // network error
+//     const msg = "Unexpected HTTP error";
+//     dispatchNetworkErrorMessageToUser(msg);
+//     throw e;
+//   }
+// };
+
 const doFetch = async (url, acceptType) => {
   try {
     const res = await fetch(url, {
@@ -61,6 +100,11 @@ const doFetch = async (url, acceptType) => {
 /*
 Wrapper to perform an async fetch and JSON decode response.
 */
+// export const doJsonRequest = async (url,token) => {
+//   const res = await doFetch(url, "application/json",token);
+//   return res.json();
+// };
+
 export const doJsonRequest = async (url) => {
   const res = await doFetch(url, "application/json");
   return res.json();

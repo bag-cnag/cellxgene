@@ -1,0 +1,61 @@
+version: "3.3"
+services:
+  cellxgene_dev:
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    build:
+        context: .
+        dockerfile: Dockerfile_dev
+    ports:
+        - 5005:5005
+    tty: True
+    
+    volumes:
+      - .:/cellxgene
+
+    command: [ 
+      "cellxgene","launch",
+      "--host","0.0.0.0",
+      "-p","5005",
+      "example-dataset/pbmc3k.h5ad" ]
+
+  pyroscope:
+    image: "pyroscope/pyroscope:latest"
+    ports:
+      - "4040:4040"
+    command:
+      - "server"
+
+  pyroscope-test:
+    build:
+      context: .
+      dockerfile: Dockerfile_pyro
+
+    environment:
+      - PYROSCOPE_SERVER_ADDRESS=http://pyroscope:4040
+      - PYROSCOPE_SPY_NAME=pyspy
+      - PYROSCOPE_APPLICATION_NAME=cellxgene
+
+    ports:
+        - 5005:5005
+    tty: True
+    
+    volumes:
+      - .:/cellxgene
+
+    cap_add:
+      - SYS_PTRACE
+   
+    command: [
+      "pyroscope","exec",
+      "python","server/cli/cli.py",
+      "launch","--host","0.0.0.0", 
+      "example-dataset/pbmc3k.h5ad","-d","-v"
+      ]
+    
+
+
+  
+
+  

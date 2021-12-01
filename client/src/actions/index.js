@@ -14,6 +14,8 @@ import * as annoActions from "./annotation";
 import * as viewActions from "./viewStack";
 import * as embActions from "./embedding";
 
+import cnag_auth from "../components/cnag_auth"
+
 /*
 return promise fetching user-configured colors
 */
@@ -29,6 +31,10 @@ async function userColorsFetchAndLoad(dispatch) {
 async function schemaFetch() {
   return fetchJson("schema");
 }
+
+// async function schemaFetch(token) {
+//   return fetchJson("schema");
+// }
 
 async function configFetch(dispatch) {
   return fetchJson("config").then((response) => {
@@ -68,10 +74,16 @@ const doInitialDataLoad = () =>
   catchErrorsWrap(async (dispatch) => {
     dispatch({ type: "initial data load start" });
 
+    debugger;
+
     try {
       const [config, schema] = await Promise.all([
         configFetch(dispatch),
+        
+        // schemaFetch(cnag_auth.getToken()),
         schemaFetch(dispatch),
+        
+        
         userColorsFetchAndLoad(dispatch),
         userInfoFetch(dispatch),
       ]);
@@ -205,11 +217,33 @@ const requestDifferentialExpression = (set1, set2, num_genes = 10) => async (
   }
 };
 
-function fetchJson(pathAndQuery) {
+// TODO: add Keycloak auth
+
+// export function test(token, urlprefix) {
+//   return fetch(`${urlprefix}api/tokentest`, {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Accept: "application/json",
+//       Authorization: token,
+//     },
+//   });
+// }
+
+// const response = await test(auth.getToken(), config.api_endpoint);
+// const response = await test(cnag_auth.getToken(), config.api_endpoint);
+
+function fetchJson(pathAndQuery,token) {
   return doJsonRequest(
-    `${globals.API.prefix}${globals.API.version}${pathAndQuery}`
+    `${globals.API.prefix}${globals.API.version}${pathAndQuery}`,token
   );
 }
+
+// function fetchJson(pathAndQuery) {
+//   return doJsonRequest(
+//     `${globals.API.prefix}${globals.API.version}${pathAndQuery}`
+//   );
+// }
 
 export default {
   doInitialDataLoad,
