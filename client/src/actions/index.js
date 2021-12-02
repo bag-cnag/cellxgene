@@ -14,16 +14,16 @@ import * as annoActions from "./annotation";
 import * as viewActions from "./viewStack";
 import * as embActions from "./embedding";
 
-import cnag_auth from "../components/cnag_auth"
+// import cnag_auth from "../components/cnag_auth"
 
-function setLoginStatusTrue(){
+function setLoginStatusTrue() {
   // debugger;
-  return  {
+  return {
     type: "set login status true",
-    data:{
-      loggedIn:true
-    }
-  }
+    data: {
+      loggedIn: true,
+    },
+  };
 }
 
 /*
@@ -84,16 +84,15 @@ const doInitialDataLoad = () =>
   catchErrorsWrap(async (dispatch) => {
     dispatch({ type: "initial data load start" });
 
-    debugger;
+    // debugger;
 
     try {
       const [config, schema] = await Promise.all([
         configFetch(dispatch),
-        
+
         // schemaFetch(cnag_auth.getToken()),
         schemaFetch(dispatch),
-        
-        
+
         userColorsFetchAndLoad(dispatch),
         userInfoFetch(dispatch),
       ]);
@@ -110,7 +109,7 @@ const doInitialDataLoad = () =>
       });
       dispatch({ type: "initial data load complete" });
 
-      const defaultEmbedding = config?.parameters?.["default_embedding"];
+      const defaultEmbedding = config?.parameters?.default_embedding;
       const layoutSchema = schema?.schema?.layout?.obs ?? [];
       if (
         defaultEmbedding &&
@@ -160,72 +159,71 @@ const dispatchDiffExpErrors = (dispatch, response) => {
   }
 };
 
-const requestDifferentialExpression = (set1, set2, num_genes = 10) => async (
-  dispatch,
-  getState
-) => {
-  dispatch({ type: "request differential expression started" });
-  try {
-    /*
+const requestDifferentialExpression =
+  (set1, set2, num_genes = 10) =>
+  async (dispatch, getState) => {
+    dispatch({ type: "request differential expression started" });
+    try {
+      /*
     Steps:
     1. get the most differentially expressed genes
     2. get expression data for each
     */
-    const { annoMatrix } = getState();
-    const varIndexName = annoMatrix.schema.annotations.var.index;
+      const { annoMatrix } = getState();
+      const varIndexName = annoMatrix.schema.annotations.var.index;
 
-    // Legal values are null, Array or TypedArray.  Null is initial state.
-    if (!set1) set1 = [];
-    if (!set2) set2 = [];
+      // Legal values are null, Array or TypedArray.  Null is initial state.
+      if (!set1) set1 = [];
+      if (!set2) set2 = [];
 
-    // These lines ensure that we convert any TypedArray to an Array.
-    // This is necessary because JSON.stringify() does some very strange
-    // things with TypedArrays (they are marshalled to JSON objects, rather
-    // than being marshalled as a JSON array).
-    set1 = Array.isArray(set1) ? set1 : Array.from(set1);
-    set2 = Array.isArray(set2) ? set2 : Array.from(set2);
+      // These lines ensure that we convert any TypedArray to an Array.
+      // This is necessary because JSON.stringify() does some very strange
+      // things with TypedArrays (they are marshalled to JSON objects, rather
+      // than being marshalled as a JSON array).
+      set1 = Array.isArray(set1) ? set1 : Array.from(set1);
+      set2 = Array.isArray(set2) ? set2 : Array.from(set2);
 
-    const res = await fetch(
-      `${globals.API.prefix}${globals.API.version}diffexp/obs`,
-      {
-        method: "POST",
-        headers: new Headers({
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        }),
-        body: JSON.stringify({
-          mode: "topN",
-          count: num_genes,
-          set1: { filter: { obs: { index: set1 } } },
-          set2: { filter: { obs: { index: set2 } } },
-        }),
-        credentials: "include",
+      const res = await fetch(
+        `${globals.API.prefix}${globals.API.version}diffexp/obs`,
+        {
+          method: "POST",
+          headers: new Headers({
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          }),
+          body: JSON.stringify({
+            mode: "topN",
+            count: num_genes,
+            set1: { filter: { obs: { index: set1 } } },
+            set2: { filter: { obs: { index: set2 } } },
+          }),
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok || res.headers.get("Content-Type") !== "application/json") {
+        return dispatchDiffExpErrors(dispatch, res);
       }
-    );
 
-    if (!res.ok || res.headers.get("Content-Type") !== "application/json") {
-      return dispatchDiffExpErrors(dispatch, res);
+      const response = await res.json();
+      const varIndex = await annoMatrix.fetch("var", varIndexName);
+      const data = response.map((v) => [
+        varIndex.at(v[0], varIndexName),
+        ...v.slice(1),
+      ]);
+
+      /* then send the success case action through */
+      return dispatch({
+        type: "request differential expression success",
+        data,
+      });
+    } catch (error) {
+      return dispatch({
+        type: "request differential expression error",
+        error,
+      });
     }
-
-    const response = await res.json();
-    const varIndex = await annoMatrix.fetch("var", varIndexName);
-    const data = response.map((v) => [
-      varIndex.at(v[0], varIndexName),
-      ...v.slice(1),
-    ]);
-
-    /* then send the success case action through */
-    return dispatch({
-      type: "request differential expression success",
-      data,
-    });
-  } catch (error) {
-    return dispatch({
-      type: "request differential expression error",
-      error,
-    });
-  }
-};
+  };
 
 // TODO: add Keycloak auth
 
@@ -243,17 +241,17 @@ const requestDifferentialExpression = (set1, set2, num_genes = 10) => async (
 // const response = await test(auth.getToken(), config.api_endpoint);
 // const response = await test(cnag_auth.getToken(), config.api_endpoint);
 
-function fetchJson(pathAndQuery,token) {
-  return doJsonRequest(
-    `${globals.API.prefix}${globals.API.version}${pathAndQuery}`,token
-  );
-}
-
-// function fetchJson(pathAndQuery) {
+// function fetchJson(pathAndQuery,token) {
 //   return doJsonRequest(
-//     `${globals.API.prefix}${globals.API.version}${pathAndQuery}`
+//     `${globals.API.prefix}${globals.API.version}${pathAndQuery}`,token
 //   );
 // }
+
+function fetchJson(pathAndQuery) {
+  return doJsonRequest(
+    `${globals.API.prefix}${globals.API.version}${pathAndQuery}`
+  );
+}
 
 export default {
   setLoginStatusTrue,

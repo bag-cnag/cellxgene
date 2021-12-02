@@ -23,32 +23,28 @@ import Login from "./cnag_login";
   loading: state.controls.loading,
   error: state.controls.error,
   graphRenderCounter: state.controls.graphRenderCounter,
-  loggedIn: state.controls.loggedIn
+  loggedIn: state.controls.loggedIn,
 }))
 class App extends React.Component {
   componentDidMount() {
-    const { dispatch, loggedIn } = this.props;
-
     /* listen for url changes, fire one when we start the app up */
     window.addEventListener("popstate", this._onURLChanged);
     this._onURLChanged();
+    this.forceUpdate();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { loggedIn: prevLoggedIn } = prevProps;
+    const { dispatch, loggedIn } = this.props;
+
+    console.log("prevLoggedIn :>> ", prevLoggedIn);
+    console.log("loggedIn :>> ", loggedIn);
 
     // only allow doInitalDataLoad if user is logged in via Keycloak
-
-    // debugger;
-    if (loggedIn) { 
+    if (prevLoggedIn === false && loggedIn === true) {
       dispatch(actions.doInitialDataLoad(window.location.search));
+      this.forceUpdate();
     }
-    // TODO
-    // if (cnag_auth.user.authenticated) {
-      // dispatch(actions.doInitialDataLoad(window.location.search));
-    // }
-
-    // TODO figure out where
-    // the post request to get_schema (server/common/rest.py) is coming from
-
-    // dispatch(actions.doInitialDataLoad(window.location.search));
-    this.forceUpdate();
   }
 
   _onURLChanged() {
@@ -62,9 +58,7 @@ class App extends React.Component {
     return (
       <Container>
         <Helmet title="cellxgene" />
-        {loggedIn ? null : (
-            <Login />
-        )}
+        {loggedIn ? null : <Login />}
         {loading ? (
           <div
             style={{
@@ -89,7 +83,8 @@ class App extends React.Component {
             error loading cellxgene
           </div>
         ) : null}
-        {loading || error ||loggedIn ? null : (
+
+        {loading || error ? null : (
           <Layout>
             <LeftSideBar />
             {(viewportRef) => (

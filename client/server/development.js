@@ -15,10 +15,6 @@ const API = {
   prefix: `http://localhost:${CXG_SERVER_PORT}/`,
 };
 
-// https://github.com/reduxjs/redux-devtools/tree/main/packages/redux-devtools-cli
-// const reduxDevTools = require('@redux-devtools/cli');
-// reduxDevTools({ hostname: 'localhost', port: 8000 });
-
 // Set up compiler
 const compiler = webpack(config);
 
