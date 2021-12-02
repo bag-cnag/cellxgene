@@ -2,23 +2,35 @@ version: "3.3"
 services:
   cellxgene_dev:
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - ENDPOINT_URL=${ENDPOINT_URL}
+      - BUCKET_NAME=${BUCKET_NAME}
     build:
         context: .
         dockerfile: Dockerfile_dev
     ports:
         - 5005:5005
     tty: True
+
+    mem_limit: 300m
     
     volumes:
       - .:/cellxgene
+
+    # command: [ 
+    #   "cellxgene","launch",
+    #   "--host","0.0.0.0",
+    #   "-p","5005",
+    #   "example-dataset/pbmc3k.h5ad" ]
 
     command: [ 
       "cellxgene","launch",
       "--host","0.0.0.0",
       "-p","5005",
-      "example-dataset/pbmc3k.h5ad" ]
+      "--dataroot","s3://${BUCKET_NAME}/t",
+      "-d","-v"
+    ]
 
   pyroscope:
     image: "pyroscope/pyroscope:latest"
@@ -36,6 +48,11 @@ services:
       - PYROSCOPE_SERVER_ADDRESS=http://pyroscope:4040
       - PYROSCOPE_SPY_NAME=pyspy
       - PYROSCOPE_APPLICATION_NAME=cellxgene
+      - PYROSCOPE_LOG_LEVEL=debug
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - ENDPOINT_URL=${ENDPOINT_URL}
+      - BUCKET_NAME=${BUCKET_NAME}
 
     ports:
         - 5005:5005
@@ -47,12 +64,24 @@ services:
     cap_add:
       - SYS_PTRACE
    
-    command: [
-      "pyroscope","exec",
-      "python","server/cli/cli.py",
-      "launch","--host","0.0.0.0", 
-      "example-dataset/pbmc3k.h5ad","-d","-v"
-      ]
+    # command: [
+    #   "pyroscope","exec",
+    #   "python","server/cli/cli.py",
+    #   "launch","--host","0.0.0.0", 
+    #   "example-dataset/pbmc3k.h5ad","-d","-v"
+    #   ]
+
+    command: [ 
+      "cellxgene","launch",
+      "--host","0.0.0.0",
+      "-p","5005",
+      "--dataroot","s3://${BUCKET_NAME}/t",
+      "-d","-v"
+    ]
+
+    # Test it with
+    # http://localhost:5005/d/pbmc3k.h5ad_uploadedVersion_1.h5ad/
+    # http://localhost:5005/d/pbmc3k_copy.h5ad_uploadedVersion_1.h5ad/
     
 
 

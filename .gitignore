@@ -63,8 +63,12 @@ ignoreE2E*
 .env
 kc.env
 vscode.env
+ceph.env
+tokens.env
 cnag.mk
 cnag_getKCTokens.sh
+
+cnag_utils/
 
 #server new files
 server/app/kc_config.py

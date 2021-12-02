@@ -43,4 +43,4 @@ FROM build as run
 
 EXPOSE 5005
 
-ENTRYPOINT [ "sh" ]
+# ENTRYPOINT [ "sh" ]

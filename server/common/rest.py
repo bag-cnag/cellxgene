@@ -24,6 +24,8 @@ from server.data_common.fbs.matrix import decode_matrix_fbs
 
 from server.app.CNAG_security import cnag_login_required
 
+# from memory_profiler import profile
+
 
 def abort_and_log(code, logmsg, loglevel=logging.DEBUG, include_exc_info=False):
     """
@@ -100,7 +102,7 @@ def _query_parameter_to_filter(args):
 
     return result
 
-
+# @profile
 def schema_get_helper(data_adaptor):
     """helper function to gather the schema from the data source and annotations"""
     schema = data_adaptor.get_schema()
