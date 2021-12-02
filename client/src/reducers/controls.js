@@ -33,7 +33,13 @@ const Controls = (
     console.error(action.error);
   }
 
+  console.log('pinned dispatched :>> ', action);
+
   switch (action.type) {
+    case "set login status true":{
+      console.log("redux stuff")
+      return {...state, loggedIn: true};
+    }
     case "initial data load start": {
       return { ...state, loading: true };
     }

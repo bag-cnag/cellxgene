@@ -27,14 +27,19 @@ import Login from "./cnag_login";
 }))
 class App extends React.Component {
   componentDidMount() {
-    const { dispatch } = this.props;
+    const { dispatch, loggedIn } = this.props;
 
     /* listen for url changes, fire one when we start the app up */
     window.addEventListener("popstate", this._onURLChanged);
     this._onURLChanged();
 
-    // TODO
     // only allow doInitalDataLoad if user is logged in via Keycloak
+
+    // debugger;
+    if (loggedIn) { 
+      dispatch(actions.doInitialDataLoad(window.location.search));
+    }
+    // TODO
     // if (cnag_auth.user.authenticated) {
       // dispatch(actions.doInitialDataLoad(window.location.search));
     // }
@@ -42,7 +47,7 @@ class App extends React.Component {
     // TODO figure out where
     // the post request to get_schema (server/common/rest.py) is coming from
 
-    dispatch(actions.doInitialDataLoad(window.location.search));
+    // dispatch(actions.doInitialDataLoad(window.location.search));
     this.forceUpdate();
   }
 

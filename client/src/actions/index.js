@@ -16,6 +16,16 @@ import * as embActions from "./embedding";
 
 import cnag_auth from "../components/cnag_auth"
 
+function setLoginStatusTrue(){
+  // debugger;
+  return  {
+    type: "set login status true",
+    data:{
+      loggedIn:true
+    }
+  }
+}
+
 /*
 return promise fetching user-configured colors
 */
@@ -246,6 +256,7 @@ function fetchJson(pathAndQuery,token) {
 // }
 
 export default {
+  setLoginStatusTrue,
   doInitialDataLoad,
   requestDifferentialExpression,
   requestSingleGeneExpressionCountsForColoringPOST,

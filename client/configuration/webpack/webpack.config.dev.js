@@ -24,7 +24,8 @@ const devConfig = {
   },
 
   mode: "development",
-  devtool: "eval",
+  devtool: "inline-source-map",
+  // devtool: "eval",
   output: {
     pathinfo: true,
     filename: "static/js/bundle.js",
