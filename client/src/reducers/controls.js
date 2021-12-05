@@ -1,6 +1,7 @@
 // jshint esversion: 6
 
 import _ from "lodash";
+import cnag_auth from "../components/cnag_auth";
 import { subsetAndResetGeneLists } from "../util/stateManager/controlsHelpers";
 
 const Controls = (
@@ -9,6 +10,7 @@ const Controls = (
     loading: true,
     error: null,
     loggedIn: false,
+    token: null,
 
     // all of the data + selection state
     userDefinedGenes: [],
@@ -38,7 +40,16 @@ const Controls = (
   switch (action.type) {
     case "set login status true":{
       console.log("redux stuff")
-      return {...state, loggedIn: true};
+      return {
+        ...state, 
+        loggedIn: true,
+        token: cnag_auth.getToken()
+      };
+    }
+    // No longer used?
+    case "set keycloak token":{
+      console.log("redux stuff2")
+      return {...state, token: cnag_auth.getToken()};
     }
     case "initial data load start": {
       return { ...state, loading: true };

@@ -24,6 +24,7 @@ import Login from "./cnag_login";
   error: state.controls.error,
   graphRenderCounter: state.controls.graphRenderCounter,
   loggedIn: state.controls.loggedIn,
+  token: state.controls.token,
 }))
 class App extends React.Component {
   componentDidMount() {
@@ -35,13 +36,26 @@ class App extends React.Component {
 
   componentDidUpdate(prevProps) {
     const { loggedIn: prevLoggedIn } = prevProps;
-    const { dispatch, loggedIn } = this.props;
+    const { dispatch, loggedIn} = this.props;
 
     console.log("prevLoggedIn :>> ", prevLoggedIn);
     console.log("loggedIn :>> ", loggedIn);
 
+    // console.log('auth.getToken() :>> ', cnag_auth.getToken());
+    // console.log('token :>> ', token);
+
     // only allow doInitalDataLoad if user is logged in via Keycloak
+    // TODO
+    // Handover the token to the server
     if (prevLoggedIn === false && loggedIn === true) {
+
+      console.log("prevLoggedIn === false && loggedIn === true")
+
+      // console.log('auth.getToken() :>> ', cnag_auth.getToken());
+      // console.log('token :>> ', token);
+
+
+
       dispatch(actions.doInitialDataLoad(window.location.search));
       this.forceUpdate();
     }

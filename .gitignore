@@ -65,6 +65,7 @@ kc.env
 vscode.env
 ceph.env
 tokens.env
+cxg.env
 cnag.mk
 cnag_getKCTokens.sh
 

@@ -1,6 +1,7 @@
 import _ from "lodash";
 /* XXX: cough, cough, ... */
 import { postNetworkErrorToast } from "../components/framework/toasters";
+import cnag_auth from "../components/cnag_auth";
 
 /*
 dispatch an action error to the user.   Currently we use
@@ -48,7 +49,6 @@ and decoding.
 //   });
 // }
 
-
 // const doFetch = async (url, acceptType,token) => {
 //   try {
 //     const res = await fetch(url, {
@@ -74,6 +74,41 @@ and decoding.
 // };
 
 const doFetch = async (url, acceptType) => {
+  // console.log('url :>> ', url);
+  // console.log(cnag_auth.getToken())
+
+  if (url.includes("/api/v0.2/schema")) {
+    console.log(url);
+    console.log("doFetch -> cnag_auth.getToken() :>> ", cnag_auth.getToken());
+
+    const token = cnag_auth.getToken();
+
+    // TODO
+    // change this to use the token
+    try {
+      const res = await fetch(url, {
+        method: "get",
+        headers: new Headers({
+          Accept: acceptType,
+          Authorization: token,
+        }),
+        credentials: "include",
+      });
+      if (res.ok && res.headers.get("Content-Type").includes(acceptType)) {
+        return res;
+      }
+      // else an error
+      const msg = `Unexpected HTTP response ${res.status}, ${res.statusText}`;
+      dispatchNetworkErrorMessageToUser(msg);
+      throw new Error(msg);
+    } catch (e) {
+      // network error
+      const msg = "Unexpected HTTP error";
+      dispatchNetworkErrorMessageToUser(msg);
+      throw e;
+    }
+  }
+
   try {
     const res = await fetch(url, {
       method: "get",

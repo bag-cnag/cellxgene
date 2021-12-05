@@ -17,12 +17,15 @@ import * as embActions from "./embedding";
 // import cnag_auth from "../components/cnag_auth"
 
 function setLoginStatusTrue() {
-  // debugger;
   return {
     type: "set login status true",
-    data: {
-      loggedIn: true,
-    },
+  };
+}
+
+// No longer used, but kept for reference
+function setToken() {
+  return {
+    type: "set keycloak token",
   };
 }
 
@@ -255,6 +258,7 @@ function fetchJson(pathAndQuery) {
 
 export default {
   setLoginStatusTrue,
+  setToken,
   doInitialDataLoad,
   requestDifferentialExpression,
   requestSingleGeneExpressionCountsForColoringPOST,
