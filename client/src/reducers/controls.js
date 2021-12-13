@@ -39,17 +39,11 @@ const Controls = (
 
   switch (action.type) {
     case "set login status true":{
-      console.log("redux stuff")
       return {
         ...state, 
         loggedIn: true,
         token: cnag_auth.getToken()
       };
-    }
-    // No longer used?
-    case "set keycloak token":{
-      console.log("redux stuff2")
-      return {...state, token: cnag_auth.getToken()};
     }
     case "initial data load start": {
       return { ...state, loading: true };
