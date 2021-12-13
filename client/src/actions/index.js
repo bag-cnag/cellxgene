@@ -45,10 +45,6 @@ async function schemaFetch() {
   return fetchJson("schema");
 }
 
-// async function schemaFetch(token) {
-//   return fetchJson("schema");
-// }
-
 async function configFetch(dispatch) {
   return fetchJson("config").then((response) => {
     const config = { ...globals.configDefaults, ...response.config };
@@ -86,19 +82,14 @@ Application bootstrap
 const doInitialDataLoad = () =>
   catchErrorsWrap(async (dispatch) => {
     dispatch({ type: "initial data load start" });
-
-    // debugger;
-
     try {
       const [config, schema] = await Promise.all([
         configFetch(dispatch),
-
-        // schemaFetch(cnag_auth.getToken()),
         schemaFetch(dispatch),
-
         userColorsFetchAndLoad(dispatch),
         userInfoFetch(dispatch),
       ]);
+
 
       const baseDataUrl = `${globals.API.prefix}${globals.API.version}`;
       const annoMatrix = new AnnoMatrixLoader(baseDataUrl, schema.schema);
@@ -228,27 +219,7 @@ const requestDifferentialExpression =
     }
   };
 
-// TODO: add Keycloak auth
 
-// export function test(token, urlprefix) {
-//   return fetch(`${urlprefix}api/tokentest`, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Accept: "application/json",
-//       Authorization: token,
-//     },
-//   });
-// }
-
-// const response = await test(auth.getToken(), config.api_endpoint);
-// const response = await test(cnag_auth.getToken(), config.api_endpoint);
-
-// function fetchJson(pathAndQuery,token) {
-//   return doJsonRequest(
-//     `${globals.API.prefix}${globals.API.version}${pathAndQuery}`,token
-//   );
-// }
 
 function fetchJson(pathAndQuery) {
   return doJsonRequest(
