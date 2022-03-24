@@ -27,7 +27,8 @@ FROM base AS build
 ADD . /cellxgene
 WORKDIR /cellxgene/client
 
-RUN npm -f install build
+RUN npm -f install
+# RUN npm run build
 
 WORKDIR /cellxgene
 # This is only working if on the machine creating the docker cotainer

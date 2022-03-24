@@ -32,37 +32,37 @@ services:
       "-d","-v"
     ]
 
-  pyroscope:
-    image: "pyroscope/pyroscope:latest"
-    ports:
-      - "4040:4040"
-    command:
-      - "server"
+  # pyroscope:
+  #   image: "pyroscope/pyroscope:latest"
+  #   ports:
+  #     - "4040:4040"
+  #   command:
+  #     - "server"
 
-  pyroscope-test:
-    build:
-      context: .
-      dockerfile: Dockerfile_pyro
+  # pyroscope-test:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile_pyro
 
-    environment:
-      - PYROSCOPE_SERVER_ADDRESS=http://pyroscope:4040
-      - PYROSCOPE_SPY_NAME=pyspy
-      - PYROSCOPE_APPLICATION_NAME=cellxgene
-      - PYROSCOPE_LOG_LEVEL=debug
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - ENDPOINT_URL=${ENDPOINT_URL}
-      - BUCKET_NAME=${BUCKET_NAME}
+  #   environment:
+  #     - PYROSCOPE_SERVER_ADDRESS=http://pyroscope:4040
+  #     - PYROSCOPE_SPY_NAME=pyspy
+  #     - PYROSCOPE_APPLICATION_NAME=cellxgene
+  #     - PYROSCOPE_LOG_LEVEL=debug
+  #     - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+  #     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  #     - ENDPOINT_URL=${ENDPOINT_URL}
+  #     - BUCKET_NAME=${BUCKET_NAME}
 
-    ports:
-        - 5005:5005
-    tty: True
+  #   ports:
+  #       - 5005:5005
+  #   tty: True
     
-    volumes:
-      - .:/cellxgene
+  #   volumes:
+  #     - .:/cellxgene
 
-    cap_add:
-      - SYS_PTRACE
+  #   cap_add:
+  #     - SYS_PTRACE
    
     # command: [
     #   "pyroscope","exec",

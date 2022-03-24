@@ -111,14 +111,14 @@ def _query_parameter_to_filter(args):
 def schema_get_helper(data_adaptor,userid, groups, projects,token):
     """helper function to gather the schema from the data source and annotations"""
 
-    # get uri from class data_adaptor - example:3tr_v1_pbmc3k.h5ad
+    # get uri from class data_adaptor - example:test_3tr_v1_pbmc3k.h5ad
     uri = data_adaptor.uri_path.split("/")[-1]
     
-    owner,version,fname = uri.split("_")
+    dataset_id,owner,version,fname = uri.split("_")
     data = {
         "name": fname,
         "version": version[1:],
-        "dataset_id": "t",
+        "dataset_id": dataset_id,
         "owner": owner,
     }
 
