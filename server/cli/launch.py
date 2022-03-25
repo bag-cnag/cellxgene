@@ -445,13 +445,14 @@ def launch(
         f = open(os.devnull, "w")
         sys.stdout = f
 
+    # changed for debugging
     try:
         server.app.run(
             host=server_config.app__host,
             debug=server_config.app__debug,
             port=server_config.app__port,
             threaded=not server_config.app__debug,
-            use_debugger=False,
+            use_debugger=True,
             use_reloader=False,
         )
     except OSError as e:

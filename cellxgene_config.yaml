@@ -98,15 +98,18 @@ server:
     #           enable:  true
 
     # dataroot:  "./example-dataset/"
-    # dataroot:  "s3://bucketdevel3tropal/3tr/test"
+    # dataroot: s3://bucketdevel3tropal/3tr/test
     
+    # idea maybe it is better to set the dataroot dynamically
+    # these could be used as subdirectories
+
     dataroot:
       d1:
-          base_url: set1
+          base_url: 3tr/test
           dataroot: s3://bucketdevel3tropal/3tr/test
-      d2:
-          base_url: set2/subdir
-          dataroot: s3://bucketdevel3tropal/3tr/test2
+      # d2:
+      #     base_url: 3tr/test2
+      #     dataroot: s3://bucketdevel3tropal/3tr/test2
 
     # The index page when in multi-dataset mode:
     #   false or null:  this returns a 404 code

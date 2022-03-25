@@ -100,12 +100,16 @@ class ServerConfig(BaseConfig):
         # The authentication object
         self.auth = None
 
+    #for CNAG
+    #for updating dataroot on the fly
+    def validate_updated_config(self):
+        self.handle_multi_dataset()
+
     def complete_config(self, context):
         self.handle_app(context)
         self.handle_data_source()
         self.handle_authentication()
-        #for cnag
-        self.handle_aws()
+        self.handle_aws() #for cnag
         self.handle_data_locator()
         self.handle_adaptor()  # may depend on data_locator
         self.handle_single_dataset(context)  # may depend on adaptor

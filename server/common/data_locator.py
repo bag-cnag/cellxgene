@@ -46,27 +46,25 @@ class DataLocator:
             if region_name:
                 config_kwargs = dict(region_name=region_name)
                 # self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30, config_kwargs=config_kwargs)
-                self.fs = fsspec.filesystem(
-                    self.protocol, listings_expiry_time=30,
-                    key=os.getenv("AWS_ACCESS_KEY_ID"), secret=os.getenv("AWS_SECRET_ACCESS_KEY"), 
-                    client_kwargs={"endpoint_url": os.getenv("ENDPOINT_URL")}
-                    )
-                # TODO
-                # get config from server config
-                # self.fs = fsspec.filesystem(
-                #     self.protocol, listings_expiry_time=30,
-                #     key=server_config.aws__access_key_id, secret=server_config.aws__secret_access_key, 
-                #     client_kwargs={"endpoint_url": server_config.aws__endpoint_url}
-                #     )
-
-
             else:
                 #for cnag
+
+                # TODO 
+                # add support for subdirs
                 self.fs = fsspec.filesystem(
                     self.protocol, listings_expiry_time=30,
                     key=config.aws__access_key_id, secret=config.aws__secret_access_key, 
                     client_kwargs={"endpoint_url": config.aws__endpoint_url}
                     )
+
+                
+
+
+                # self.fs = fsspec.filesystem(
+                #     self.protocol, listings_expiry_time=30,
+                #     key=config.aws__access_key_id, secret=config.aws__secret_access_key, 
+                #     client_kwargs={"endpoint_url": config.aws__endpoint_url}
+                #     )
                 # self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30)
         else:
             self.fs = fsspec.filesystem(self.protocol)
@@ -133,11 +131,39 @@ class DataLocator:
             src.close()
             tmp_path = tmp.name
             return LocalFilePath(tmp_path, delete=True)
+    
+    # modified for cnag to support sub directories
+    # data structure on CEPH:
+    # bucket_name/<data_owner>/<dataset_id>/<file_name>
+    # def ls(self):
+    #     paths = self.fs.ls(self.uri_or_path)
+
+    #     #get possible data_owners (having cellxgene data) from the data warehouse
+    #     #hardcoded for now
+    #     data_owners = ["3tr","cnag"]
+
+    #     #get the dataset_ids (having cellxgene data)
+    #     #hardcoded for now
+    #     owner_to_dataset_ids = {
+    #         "3tr":["test","test2"]
+    #     }
+
+    #     #get the file_names (having cellxgene data)
+    #     files=[]
+
+    #     files = []
+    #     sub_dirs=[]
+    #     for path in paths:
+    #         if len(path.split(".")) < 2:
+    #             sub_dirs.append(path.split("/")[-1])
+    #             paths_new = self.fs.ls(self.uri_or_path+"/"+path.split("/")[-1])
+    #             print(paths_new)
+
+    #     return [os.path.basename(p) for p in paths]
 
     def ls(self):
         paths = self.fs.ls(self.uri_or_path)
         return [os.path.basename(p) for p in paths]
-
 
 class LocalFilePath:
     def __init__(self, tmp_path, delete=False):

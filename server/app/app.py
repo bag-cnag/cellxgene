@@ -80,6 +80,21 @@ def dataset_index(url_dataroot=None, dataset=None):
             location = server_config.single_dataset__datapath
     else:
         dataroot = None
+
+         # try to update dataroot config on the fly
+        app_config.update_server_config(multi_dataset__dataroot={
+            "d1": {
+                "base_url": "3tr/test", 
+                "dataroot": "s3://bucketdevel3tropal/3tr/test"
+                },
+            "d2": {
+                "base_url": "3tr/test2", 
+                "dataroot": "s3://bucketdevel3tropal/3tr/test2"
+                }
+        })
+        # it has to be checked again after the update
+        server_config.validate_updated_config()
+
         for key, dataroot_dict in server_config.multi_dataset__dataroot.items():
             if dataroot_dict["base_url"] == url_dataroot:
                 dataroot = dataroot_dict["dataroot"]
@@ -109,6 +124,9 @@ def dataset_index(url_dataroot=None, dataset=None):
 def handle_request_exception(error):
     return common_rest.abort_and_log(error.status_code, error.message, loglevel=logging.INFO, include_exc_info=True)
 
+# for cnag
+# try to update dataroot config on the fly
+from server.common.config.app_config import AppConfig
 
 def get_data_adaptor(url_dataroot=None, dataset=None):
     config = current_app.app_config
@@ -119,6 +137,21 @@ def get_data_adaptor(url_dataroot=None, dataset=None):
         datapath = server_config.single_dataset__datapath
     else:
         dataroot = None
+
+        # try to update dataroot config on the fly
+        config.update_server_config(multi_dataset__dataroot={
+            "d1": {
+                "base_url": "3tr/test", 
+                "dataroot": "s3://bucketdevel3tropal/3tr/test"
+                },
+            "d2": {
+                "base_url": "3tr/test2", 
+                "dataroot": "s3://bucketdevel3tropal/3tr/test2"
+                }
+        })
+        # it has to be checked again after the update
+        server_config.validate_updated_config()
+
         for key, dataroot_dict in server_config.multi_dataset__dataroot.items():
             if dataroot_dict["base_url"] == url_dataroot:
                 dataroot = dataroot_dict["dataroot"]
@@ -127,7 +160,10 @@ def get_data_adaptor(url_dataroot=None, dataset=None):
 
         if dataroot is None:
             raise DatasetAccessError(f"Invalid dataset {url_dataroot}/{dataset}")
+
         datapath = path_join(dataroot, dataset)
+
+
         # path_join returns a normalized path.  Therefore it is
         # sufficient to check that the datapath starts with the
         # dataroot to determine that the datapath is under the dataroot.
@@ -199,6 +235,7 @@ def dataroot_test_index():
                 datasets.append((url_dataroot, fname))
             except DatasetAccessError:
                 # skip over invalid datasets
+                print("invalid dataset", location)
                 pass
 
     data += "<br/>Select one of these datasets...<br/>"
@@ -410,7 +447,28 @@ class Server:
             # NOTE:  These routes only allow the dataset to be in the directory
             # of the dataroot, and not a subdirectory.  We may want to change
             # the route format at some point
+
+            # TODO
+            # add support for sub dirs
+            # try to update dataroot config on the fly
+            app_config.update_server_config(multi_dataset__dataroot={
+                "d1": {
+                    "base_url": "3tr/test", 
+                    "dataroot": "s3://bucketdevel3tropal/3tr/test"
+                    },
+                "d2": {
+                    "base_url": "3tr/test2", 
+                    "dataroot": "s3://bucketdevel3tropal/3tr/test2"
+                    }
+            })
+            # it has to be checked again after the update
+            server_config.validate_updated_config()
+
             for dataroot_dict in server_config.multi_dataset__dataroot.values():
+
+                # TODO
+                # figure out how to register blueprints on the fly
+
                 url_dataroot = dataroot_dict["base_url"]
                 bp_dataroot = Blueprint(
                     f"api_dataset_{url_dataroot}",
@@ -419,6 +477,9 @@ class Server:
                 )
                 dataroot_resources = get_api_dataroot_resources(bp_dataroot, url_dataroot)
                 self.app.register_blueprint(dataroot_resources.blueprint)
+
+                # TODO
+                # these have to be added on the fly as well
 
                 self.app.add_url_rule(
                     f"/{url_dataroot}/<dataset>",
