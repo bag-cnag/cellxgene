@@ -1,13 +1,10 @@
-import yaml
-
-default_config = """
 server:
   app:
-    verbose: false
-    debug: false
+    verbose: true
+    debug: true
     host: localhost
-    port : null
-    open_browser: false
+    port : 5005
+    open_browser: true
     force_https: false
     flask_secret_key: null
     generate_cache_control_headers: false
@@ -58,13 +55,6 @@ server:
        # legal keys:  key, max_age, expires, path, domain, secure, httponly, and samesite.
        cookie:  null
 
-  aws:
-    endpoint_url: null
-    bucket: null
-    access_key_id: null
-    secret_access_key: null
-    bucket: null
-
   multi_dataset:
     # If dataroot is set, then cellxgene may serve multiple datasets.  This parameter is not
     # compatible with single_dataset/datapath.
@@ -107,13 +97,22 @@ server:
     #       user_annotations:
     #           enable:  true
 
-    dataroot: null
+    # dataroot:  "./example-dataset/"
+    # dataroot:  "s3://bucketdevel3tropal/3tr/test"
+    
+    dataroot:
+      d1:
+          base_url: set1
+          dataroot: s3://bucketdevel3tropal/3tr/test
+      d2:
+          base_url: set2/subdir
+          dataroot: s3://bucketdevel3tropal/3tr/test2
 
     # The index page when in multi-dataset mode:
     #   false or null:  this returns a 404 code
     #   true:  loads a test index page, which links to the datasets that are available in the dataroot
     #   string/URL:  redirect to this URL:  flask.redirect(config.multi_dataset__index)
-    index: false
+    index: true
 
     # A list of allowed matrix types.  If an empty list, then all matrix types are allowed
     allowed_matrix_types: []
@@ -153,7 +152,7 @@ server:
       #   if true, then the s3 location is automatically determined from the datapath or dataroot.
       #   if false/null, then do not set.
       #   if a string, then use that value (e.g. us-east-1).
-      region_name: true
+      region_name: null
 
   adaptor:
     cxg_adaptor:
@@ -233,7 +232,19 @@ external:
      - name: CXG_OAUTH_CLIENT_SECRET
        path: [server, authentication, params_oauth, client_secret]
        required: false
-
+     - name: AWS_ACCESS_KEY_ID
+       path: [server,aws,access_key_id]
+       required: false
+     - name: AWS_SECRET_ACCESS_KEY
+       path: [server,aws,secret_access_key]
+       required: false
+     - name: ENDPOINT_URL
+       path: [server,aws,endpoint_url]
+       required: false
+     - name: BUCKET_NAME
+       path: [server,aws,bucket]
+       required: False
+       
   # AWS Secrets Manager
   # This section describes how to map aws secrets to configuration parameters.
   # The format is the region for the secrets manager, then a list of secrets.
@@ -266,8 +277,3 @@ external:
   aws_secrets_manager:
     region: null
     secrets: []
-"""
-
-
-def get_default_config():
-    return yaml.load(default_config, Loader=yaml.Loader)

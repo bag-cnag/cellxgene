@@ -57,6 +57,12 @@ class ServerConfig(BaseConfig):
             ]
             self.authentication__params_oauth__cookie = default_config["authentication"]["params_oauth"]["cookie"]
 
+            #added by cnag
+            self.aws__endpoint_url = default_config["aws"]["endpoint_url"]
+            self.aws__bucket = default_config["aws"]["bucket"]
+            self.aws__access_key_id = default_config["aws"]["access_key_id"]
+            self.aws__secret_access_key = default_config["aws"]["secret_access_key"]
+
             self.multi_dataset__dataroot = default_config["multi_dataset"]["dataroot"]
             self.multi_dataset__index = default_config["multi_dataset"]["index"]
             self.multi_dataset__allowed_matrix_types = default_config["multi_dataset"]["allowed_matrix_types"]
@@ -98,6 +104,8 @@ class ServerConfig(BaseConfig):
         self.handle_app(context)
         self.handle_data_source()
         self.handle_authentication()
+        #for cnag
+        self.handle_aws()
         self.handle_data_locator()
         self.handle_adaptor()  # may depend on data_locator
         self.handle_single_dataset(context)  # may depend on adaptor
@@ -191,6 +199,13 @@ class ServerConfig(BaseConfig):
         self.auth = AuthTypeFactory.create(self.authentication__type, self)
         if self.auth is None:
             raise ConfigurationError(f"Unknown authentication type: {self.authentication__type}")
+
+    # for cnag
+    def handle_aws(self):
+        self.validate_correct_type_of_configuration_attribute("aws__access_key_id", str)
+        self.validate_correct_type_of_configuration_attribute("aws__secret_access_key", str)
+        self.validate_correct_type_of_configuration_attribute("aws__bucket", str)
+        self.validate_correct_type_of_configuration_attribute("aws__endpoint_url", str)
 
     def handle_data_locator(self):
         self.validate_correct_type_of_configuration_attribute("data_locator__s3__region_name", (type(None), bool, str))

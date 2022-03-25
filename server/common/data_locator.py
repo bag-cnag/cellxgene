@@ -27,8 +27,8 @@ class DataLocator:
     in fsspec.
 
     """
-
-    def __init__(self, uri_or_path, region_name=None):
+    # def __init__(self, uri_or_path, region_name=None):
+    def __init__(self, uri_or_path, region_name=None, config=None):
         if isinstance(uri_or_path, DataLocator):
             locator = uri_or_path
             self.uri_or_path = locator.uri_or_path
@@ -51,8 +51,23 @@ class DataLocator:
                     key=os.getenv("AWS_ACCESS_KEY_ID"), secret=os.getenv("AWS_SECRET_ACCESS_KEY"), 
                     client_kwargs={"endpoint_url": os.getenv("ENDPOINT_URL")}
                     )
+                # TODO
+                # get config from server config
+                # self.fs = fsspec.filesystem(
+                #     self.protocol, listings_expiry_time=30,
+                #     key=server_config.aws__access_key_id, secret=server_config.aws__secret_access_key, 
+                #     client_kwargs={"endpoint_url": server_config.aws__endpoint_url}
+                #     )
+
+
             else:
-                self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30)
+                #for cnag
+                self.fs = fsspec.filesystem(
+                    self.protocol, listings_expiry_time=30,
+                    key=config.aws__access_key_id, secret=config.aws__secret_access_key, 
+                    client_kwargs={"endpoint_url": config.aws__endpoint_url}
+                    )
+                # self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30)
         else:
             self.fs = fsspec.filesystem(self.protocol)
 

@@ -191,7 +191,7 @@ def dataroot_test_index():
     for dataroot_dict in server_config.multi_dataset__dataroot.values():
         dataroot = dataroot_dict["dataroot"]
         url_dataroot = dataroot_dict["base_url"]
-        locator = DataLocator(dataroot, region_name=server_config.data_locator__s3__region_name)
+        locator = DataLocator(dataroot, region_name=server_config.data_locator__s3__region_name, config=server_config)
         for fname in locator.ls():
             location = path_join(dataroot, fname)
             try:
@@ -405,6 +405,7 @@ class Server:
         base_resources = get_api_base_resources(bp_base)
         self.app.register_blueprint(base_resources.blueprint)
 
+        # for CNAG this needs to be changed
         if app_config.is_multi_dataset():
             # NOTE:  These routes only allow the dataset to be in the directory
             # of the dataroot, and not a subdirectory.  We may want to change
