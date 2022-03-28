@@ -468,6 +468,7 @@ class Server:
 
                 # TODO
                 # figure out how to register blueprints on the fly
+                # ! apparently this is not possible
 
                 url_dataroot = dataroot_dict["base_url"]
                 bp_dataroot = Blueprint(
@@ -475,11 +476,32 @@ class Server:
                     __name__,
                     url_prefix=f"{api_path}/{url_dataroot}/<dataset>" + api_version,
                 )
+
+                # add the resources 
                 dataroot_resources = get_api_dataroot_resources(bp_dataroot, url_dataroot)
+
+                #get_api_dataroot_resources is a wrapper around Flask Restfuls add_ressources
+                #https://github.com/flask-restful/flask-restful/blob/master/flask_restful/__init__.py#L357
+
+                #add resources modfies the list self.resources
+                # https://github.com/flask-restful/flask-restful/blob/master/flask_restful/__init__.py#L90
+
+                # This is also not supposed to be modified during run time
+                # + there is no function "remove_resource"
+
+                # => so we not only need to modify cellxgene 
+                # but also flask restful
+
+
                 self.app.register_blueprint(dataroot_resources.blueprint)
 
                 # TODO
-                # these have to be added on the fly as well
+                # these have to be modified on the fly as well
+                # https://stackoverflow.com/questions/24129217/flask-delete-routes-added-with-add-url
+                # Flask (which relies on Werkzeug) is designed to allow the user to easily add, not delete, routes.
+                # However you can try to delete routes yourself; each route is added to url_map in the Flask.add_url_rule() method. 
+                # It is probably enough to remove the route from Map._rules and Map._rules_by_endpoint (see the Map.add() method) 
+                # and call Map.update() with _remap.
 
                 self.app.add_url_rule(
                     f"/{url_dataroot}/<dataset>",
