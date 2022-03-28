@@ -220,6 +220,7 @@ class MatrixDataLoader(object):
         region_name = None if app_config is None else app_config.server_config.data_locator__s3__region_name
         # self.location = DataLocator(location, region_name=region_name)
 
+        # check if the location has double slashes in it
         self.location = DataLocator(location, region_name=region_name, config=app_config.server_config)
         if not self.location.exists():
             raise DatasetAccessError("Dataset does not exist.", HTTPStatus.NOT_FOUND)

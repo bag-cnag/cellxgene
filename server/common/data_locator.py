@@ -84,6 +84,9 @@ class DataLocator:
         return None, uri_or_path
 
     def exists(self):
+        # runs into an error because of double slash in s3://bucket/path/to/file
+        # e.g. 
+        # self.fs.exists("s3://bucketdevel3tropal//3tr/test/pbmc3k.h5ad_uploadedVersion_1.h5ad")
         return self.fs.exists(self.cname)
 
     def size(self):
