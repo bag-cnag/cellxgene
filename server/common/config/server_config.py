@@ -100,11 +100,6 @@ class ServerConfig(BaseConfig):
         # The authentication object
         self.auth = None
 
-    #for CNAG
-    #for updating dataroot on the fly
-    def validate_updated_config(self):
-        self.handle_multi_dataset()
-
     def complete_config(self, context):
         self.handle_app(context)
         self.handle_data_source()
