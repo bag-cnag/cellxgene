@@ -433,13 +433,16 @@ class Server:
                 dataroot_resources = get_api_dataroot_resources(bp_dataroot, url_dataroot)
                 self.app.register_blueprint(dataroot_resources.blueprint)
 
+                # Note:
+                # only urls with a trailing slash are working
+                # e.g. http://localhost:5005/d/3tr/test/pbmc3k.h5ad_uploadedVersion_1.h5ad/
+
                 self.app.add_url_rule(
                     f"/{url_dataroot}/<dataset>",
                     f"dataset_index_{url_dataroot}",
                     lambda data_owner, dataset_id,dataset,url_dataroot=url_dataroot: dataset_index(url_dataroot, dataset, data_owner, dataset_id),
                     methods=["GET"],
                 )
-
                 self.app.add_url_rule(
                     f"/{url_dataroot}/<dataset>/",
                     f"dataset_index_{url_dataroot}/",
