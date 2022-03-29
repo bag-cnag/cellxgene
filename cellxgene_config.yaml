@@ -22,7 +22,7 @@ server:
     #  2. The cellxgene deploymnent is in an environment where the webpage and api have
     #     different base urls.  In this case both api_base_url and web_base_url must be set.
     #     It is up to the server admin to ensure that the networking is setup correctly for this environment.
-    api_base_url: null
+    api_base_url: local
     web_base_url: null
 
   authentication:
@@ -30,13 +30,17 @@ server:
     # none:  No authentication support, features like user_annotations must not be enabled.
     # session:  A session based userid is automatically generated. (no params needed)
     # oauth: oauth2 is used for authentication;  parameters are defined in params_oauth.
+    
+    #! oauth not working
+    # Error: error in oauth, api_url_base: https://sso.[...], 
+    # cannot access https://sso/.well-known/jwks.json
     type: session
 
     params_oauth:
        # url to the oauth server
        oauth_api_base_url: null
        # client_id of this app
-       client_id: null
+       client_id: cellxgene
        # the client_secret known to the auth server and this app
        client_secret: null
        # jwt_decode_options, to specify non default decode options define
@@ -56,53 +60,8 @@ server:
        cookie:  null
 
   multi_dataset:
-    # If dataroot is set, then cellxgene may serve multiple datasets.  This parameter is not
-    # compatible with single_dataset/datapath.
-    # dataroot may be a string, representing the path to a directory or S3 prefix.  In this
-    # case the datasets in that location are accessed from <server>/d/<datasetname>.
-    # example:
-    #     dataroot:  /path/to/datasets/
-    # or
-    #     dataroot:  s3://bucket/prefix/
-    #
-    # As an alternative, dataroot can be a dictionary, where a dataset key is associated with a base_url
-    # and a dataroot.
-    # example:
-    #     dataroot:
-    #         d1:
-    #            base_url: set1
-    #            dataroot: /path/to/set1_datasets/
-    #         d2:
-    #            base_url: set2/subdir
-    #            dataroot: /path/to/set2_datasets/
-    #
-    # In this case, datasets can be accessed from <server>/set1/<datasetname> or
-    # <server>/set2/subdir/<datasetname>.  It is possible to have different dataset configurations
-    # for datasets accessed through different dataroots.  For example, in one dataroot, the
-    # user annotations could be enabled, and in another dataroot they could be disabled.
-    # To specify dataroot configurations, add a new top level dictionary to the config named
-    # per_dataset_config. Within per_dataset_config create a dictionary for each dataroot to specialize
-    # ("d1" or "d2" from the example).  Each of these dictionaries has the exact same form as the "dataset"
-    # dictionary (see below).
-    # When this approach is used, the values for each configuration option are checked in
-    # this order: per_dataset_config/<key>, dataset, then the default values.
-    #
-    # example:
-    #
-    # per_dataset_config:
-    #    d1:
-    #       user_annotations:
-    #           enable:  false
-    #    d2:
-    #       user_annotations:
-    #           enable:  true
-
-    # dataroot:  "./example-dataset/"
     dataroot: s3://bucketdevel3tropal
     
-    # idea maybe it is better to set the dataroot dynamically
-    # these could be used as subdirectories
-
     # dataroot:
     #   d1:
     #       base_url: 3tr/test
@@ -115,7 +74,9 @@ server:
     #   false or null:  this returns a 404 code
     #   true:  loads a test index page, which links to the datasets that are available in the dataroot
     #   string/URL:  redirect to this URL:  flask.redirect(config.multi_dataset__index)
-    index: true
+    
+    # ! not working when using ceph prexfixes
+    index: false
 
     # A list of allowed matrix types.  If an empty list, then all matrix types are allowed
     allowed_matrix_types: []
@@ -232,9 +193,12 @@ external:
      - name: CXG_SECRET_KEY
        path: [server, app, flask_secret_key]
        required: false
-     - name: CXG_OAUTH_CLIENT_SECRET
-       path: [server, authentication, params_oauth, client_secret]
+     - name: CXG_OAUTH_CLIENT_API_URL
+       path: [server, authentication, params_oauth, oauth_api_base_url]
        required: false
+    - name: CXG_OAUTH_CLIENT_SECRET
+      path: [server, authentication, params_oauth, client_secret]
+      required: false
      - name: AWS_ACCESS_KEY_ID
        path: [server,aws,access_key_id]
        required: false
