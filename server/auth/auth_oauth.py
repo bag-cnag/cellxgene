@@ -136,9 +136,21 @@ class AuthTypeOAuth(AuthTypeClientBase):
             client_id=self.client_id,
             client_secret=self.client_secret,
             api_base_url=self.oauth_api_base_url,
-            refresh_token_url=f"{self.oauth_api_base_url}/oauth/token",
-            access_token_url=f"{self.oauth_api_base_url}/oauth/token",
-            authorize_url=f"{self.oauth_api_base_url}/authorize",
+
+            # for cnag
+            refresh_token_url=f"{self.oauth_api_base_url}/protocol/openid-connect/token",
+            access_token_url=f"{self.oauth_api_base_url}/protocol/openid-connect/token",
+            authorize_url=f"{self.oauth_api_base_url}/protocol/openid-connect/auth",
+
+            # maybe this resolves: Missing "jwks_uri" in metadata
+            server_metadata_url=f"{self.oauth_api_base_url}/.well-known/openid-configuration",
+            # !no because if that is added it fails at 
+            # response = self.client.authorize_redirect(redirect_uri=callbackurl)
+
+            # original
+            # refresh_token_url=f"{self.oauth_api_base_url}/oauth/token",
+            # access_token_url=f"{self.oauth_api_base_url}/oauth/token",
+            # authorize_url=f"{self.oauth_api_base_url}/authorize",
             client_kwargs={"scope": "openid profile email offline_access"},
         )
 
@@ -166,8 +178,13 @@ class AuthTypeOAuth(AuthTypeClientBase):
         response.cache_control.update(dict(public=True, max_age=0, no_store=True, no_cache=True, must_revalidate=True))
 
     def login(self):
+
+        # ssl errors can be prevented by
+        # export "CURL_CA_BUNDLE"=""
+
         callbackurl = f"{self.api_base_url}/oauth2/callback"
         return_path = request.args.get("dataset", "")
+        return_path = return_path.replace("s3://bucketdevel3tropal", "d")
         return_to = f"{self.web_base_url}/{return_path}"
         # save the return path in the session cookie, accessed in the callback function
         session["oauth_callback_redirect"] = return_to
@@ -200,7 +217,7 @@ class AuthTypeOAuth(AuthTypeClientBase):
         return response
 
     def callback(self):
-        data = self.client.authorize_access_token()
+        data = self.client.authorize_access_token(verify=False)
         tokens = Tokens(
             access_token=data.get("access_token"),
             id_token=data.get("id_token"),
@@ -318,6 +335,9 @@ class AuthTypeOAuth(AuthTypeClientBase):
             except ExpiredSignatureError:
                 # This exception is handled in get_userinfo
                 raise
+            
+            # runs into JWTClaimsError
+            # jwt.decode -> Jose.exceptions.JWTClaimsError: Invalid issuer
             except JWTClaimsError as e:
                 raise AuthenticationError(f"invalid claims {str(e)}") from e
             except JWTError as e:
