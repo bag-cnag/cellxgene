@@ -196,9 +196,9 @@ external:
      - name: CXG_OAUTH_CLIENT_API_URL
        path: [server, authentication, params_oauth, oauth_api_base_url]
        required: false
-    - name: CXG_OAUTH_CLIENT_SECRET
-      path: [server, authentication, params_oauth, client_secret]
-      required: false
+     - name: CXG_OAUTH_CLIENT_SECRET
+       path: [server, authentication, params_oauth, client_secret]
+       required: false
      - name: AWS_ACCESS_KEY_ID
        path: [server,aws,access_key_id]
        required: false
