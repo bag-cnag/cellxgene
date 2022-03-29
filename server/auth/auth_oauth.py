@@ -67,16 +67,10 @@ class AuthTypeOAuth(AuthTypeClientBase):
         # The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify
         # any JSON Web Token (JWT) issued by the authorization server and signed using the RS256
 
-        # "jwks" could be queried from here:
-        # https://sso/auth/realms/REALM/protocol/openid-connect/certs
-        # https://lists.jboss.org/pipermail/keycloak-user/2018-June/014306.html
-
-        # TODO
-        # look into how to modify below to use the by cellxgene implemented oauth login
-
         try:
-            jwksloc = f"{self.oauth_api_base_url}/.well-known/jwks.json"
-            jwksurl = requests.get(jwksloc)
+            jwksloc = f"{self.oauth_api_base_url}/protocol/openid-connect/certs"
+            # jwksloc = f"{self.oauth_api_base_url}/.well-known/jwks.json"
+            jwksurl = requests.get(jwksloc,verify=False)
             self.jwks = jwksurl.json()
         except Exception:
             raise ConfigurationError(
