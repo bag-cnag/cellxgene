@@ -140,7 +140,11 @@ def dataset_index(url_dataroot=None, dataset=None, data_owner=None, dataset_id=N
 def handle_request_exception(error):
     return common_rest.abort_and_log(error.status_code, error.message, loglevel=logging.INFO, include_exc_info=True)
 
-def get_data_adaptor(url_dataroot=None, dataset=None, data_owner=None, dataset_id=None):
+# for cnag
+def get_data_adaptor(dataset=None, data_owner=None, dataset_id=None):
+
+# original
+# def get_data_adaptor(url_dataroot=None, dataset=None, data_owner=None, dataset_id=None):
     config = current_app.app_config
     server_config = config.server_config
     dataset_key = None
@@ -150,45 +154,24 @@ def get_data_adaptor(url_dataroot=None, dataset=None, data_owner=None, dataset_i
     else:
         dataroot = None
 
-        # try to update dataroot config on the fly
-        # config.update_server_config(multi_dataset__dataroot={
-        #     "d1": {
-        #         "base_url": "3tr/test", 
-        #         "dataroot": "s3://bucketdevel3tropal/3tr/test"
-        #         },
-        #     "d2": {
-        #         "base_url": "3tr/test2", 
-        #         "dataroot": "s3://bucketdevel3tropal/3tr/test2"
-        #         }
-        # })
-        # # it has to be checked again after the update
-        # server_config.validate_updated_config()
-
-        # for "cnag"
-        for key, dataroot_dict in server_config.multi_dataset__dataroot.items():
-            if f"{dataroot_dict['base_url']}/<data_owner>/<dataset_id>" == url_dataroot:
-                dataroot = dataroot_dict["dataroot"]
-                dataset_key = key
-                break
-
         # original
-        # for key, dataroot_dict in server_config.multi_dataset__dataroot.items():
-        #     if dataroot_dict["base_url"] == url_dataroot:
-        #         dataroot = dataroot_dict["dataroot"]
-        #         dataset_key = key
-        #         break
+        for key, dataroot_dict in server_config.multi_dataset__dataroot.items():
+            # if dataroot_dict["base_url"] == url_dataroot:
+            dataroot = dataroot_dict["dataroot"]
+            dataset_key = key
+            break
 
-        if dataroot is None:
-            raise DatasetAccessError(f"Invalid dataset {url_dataroot}/{dataset}")
+        # if dataroot is None:
+        #     raise DatasetAccessError(f"Invalid dataset {url_dataroot}/{dataset}")
 
-        dataroot = f"{dataroot_dict['dataroot']}/{data_owner}/{dataset_id}/"
+        dataroot = f"{dataroot}/{data_owner}/{dataset_id}"
         datapath = path_join(dataroot, dataset)
 
         # path_join returns a normalized path.  Therefore it is
         # sufficient to check that the datapath starts with the
         # dataroot to determine that the datapath is under the dataroot.
         if not datapath.startswith(dataroot):
-            raise DatasetAccessError(f"Invalid dataset {url_dataroot}/{dataset}")
+            raise DatasetAccessError(f"Invalid dataset {dataroot}/{dataset}")
 
     if datapath is None:
         return common_rest.abort_and_log(HTTPStatus.BAD_REQUEST, "Invalid dataset NONE", loglevel=logging.INFO)
@@ -212,14 +195,15 @@ def requires_authentication(func):
 def rest_get_data_adaptor(func):
     @wraps(func)
     
-    #cnag
     def wrapped_function(self, dataset=None, data_owner=None, dataset_id=None):
         try:
-            with get_data_adaptor(self.url_dataroot, dataset, data_owner, dataset_id) as data_adaptor:
-                # hardcoded for now:
-                url_dataroot = "s3://bucketdevel3tropal"
+            with get_data_adaptor(dataset, data_owner, dataset_id) as data_adaptor:
+                config = current_app.app_config
+                server_config = config.server_config
+                dataroot_key = self.url_dataroot.split("/")[0]
+                url_dataroot = server_config.multi_dataset__dataroot[dataroot_key]["dataroot"]
+
                 data_adaptor.set_uri_path(f"{url_dataroot}/{data_owner}/{dataset_id}/{dataset}")
-                # data_adaptor.set_uri_path(f"{self.url_dataroot}/{dataset}")
                 return func(self,data_adaptor,data_owner, dataset_id)
         except DatasetAccessError as e:
             return common_rest.abort_and_log(
@@ -315,10 +299,13 @@ if debug == "cnag":
     class DatasetResource(Resource):
         """Base class for all Resources that act on datasets."""
 
+        # for cnag
+        # def __init__(self):
+        #     super().__init__()
+
+        # original
         def __init__(self, url_dataroot):
             super().__init__()
-            # hardcode url_dataroot for testing
-            # self.url_dataroot = "d/3tr/test"
             self.url_dataroot = url_dataroot
 
 
@@ -517,9 +504,11 @@ def get_api_dataroot_resources(bp_dataroot, url_dataroot=None):
 
     def add_resource(resource, url):
         """convenience function to make the outer function less verbose"""
+        #for cnag
+        #api.add_resource(resource, url)
+        
+        # original
         api.add_resource(resource, url, resource_class_args=(url_dataroot,))
-
-    #! does not seem to work
 
     # Initialization routes
     add_resource(SchemaAPI, "/schema")
