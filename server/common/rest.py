@@ -111,32 +111,21 @@ def _query_parameter_to_filter(args):
 def schema_get_helper(data_adaptor,userid, groups, projects,token):
     """helper function to gather the schema from the data source and annotations"""
 
-    # get uri from class data_adaptor - example:test_3tr_v1_pbmc3k.h5ad
-    uri = data_adaptor.uri_path.rsplit
     owner,dataset_id,fname = data_adaptor.uri_path.rsplit('/')[3:]
     
     # FIXME
-    # this will not work if the filenames has underscores in the name
+    # this will not work if the filename has _uploadedVersion_ in the filename
 
     # TODO
     # rewrite CEPH structure as follows:
     # <owner>/<dataset_id>/<filename>/<version>/<filename_uploadedVersion_#>
 
     data = {
-        "name": fname.split('_')[0],
-        "version": fname.split('_')[2].split('.')[0],
+        "name": fname.split('_uploadedVersion_')[0],
+        "version": fname.rsplit('_')[-1].split('.')[0],
         "dataset_id": dataset_id,
         "owner": owner
     }
-
-    # dataset_id,owner,version,fname = uri.split("_")
-    # data = {
-    #     "name": fname,
-    #     "version": version[1:],
-    #     "dataset_id": dataset_id,
-    #     "owner": owner,
-    # }
-
     res = requests.post(file_api, json = data, headers={"Authorization":token})
 
     if res.status_code == 404:
@@ -157,17 +146,6 @@ def schema_get_helper(data_adaptor,userid, groups, projects,token):
             schema["annotations"]["obs"]["columns"].extend(label_schema)
 
         return schema
-
-
-# TODO 
-# in app.js figure out where the request to 
-# schema_get is triggered and how to hand to it the
-# the correct keycloak authorization
-
-# TODO
-# figure out how to hand over a url to get the data from ceph
-# so we do not need to launch the server with a specific CEPH path
-# pointing to the data
 
 @cnag_login_required
 def schema_get(data_adaptor,userid, groups, projects, token):
