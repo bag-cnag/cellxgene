@@ -135,35 +135,6 @@ class DataLocator:
             tmp_path = tmp.name
             return LocalFilePath(tmp_path, delete=True)
     
-    # modified for cnag to support sub directories
-    # data structure on CEPH:
-    # bucket_name/<data_owner>/<dataset_id>/<file_name>
-    # def ls(self):
-    #     paths = self.fs.ls(self.uri_or_path)
-
-    #     #get possible data_owners (having cellxgene data) from the data warehouse
-    #     #hardcoded for now
-    #     data_owners = ["3tr","cnag"]
-
-    #     #get the dataset_ids (having cellxgene data)
-    #     #hardcoded for now
-    #     owner_to_dataset_ids = {
-    #         "3tr":["test","test2"]
-    #     }
-
-    #     #get the file_names (having cellxgene data)
-    #     files=[]
-
-    #     files = []
-    #     sub_dirs=[]
-    #     for path in paths:
-    #         if len(path.split(".")) < 2:
-    #             sub_dirs.append(path.split("/")[-1])
-    #             paths_new = self.fs.ls(self.uri_or_path+"/"+path.split("/")[-1])
-    #             print(paths_new)
-
-    #     return [os.path.basename(p) for p in paths]
-
     def ls(self):
         paths = self.fs.ls(self.uri_or_path)
         return [os.path.basename(p) for p in paths]

@@ -120,12 +120,9 @@ def schema_get_helper(data_adaptor):
 # schema_get is triggered and how to hand to it the
 # the correct keycloak authorization
 
-# @cnag_login_required
-# def schema_get(data_adaptor,userid, groups, projects):
-
-#cnag all the 
-
-def schema_get(data_adaptor):
+@cnag_login_required
+def schema_get(data_adaptor,userid, groups, projects):
+# def schema_get(data_adaptor):
     schema = schema_get_helper(data_adaptor)
     return make_response(jsonify({"schema": schema}), HTTPStatus.OK)
 
