@@ -178,14 +178,20 @@ class AuthTypeOAuth(AuthTypeClientBase):
         response.cache_control.update(dict(public=True, max_age=0, no_store=True, no_cache=True, must_revalidate=True))
 
     def login(self):
+        app_config = current_app.app_config
+        server_config = app_config.server_config
 
         # ssl errors can be prevented by
         # export "CURL_CA_BUNDLE"=""
 
         callbackurl = f"{self.api_base_url}/oauth2/callback"
         return_path = request.args.get("dataset", "")
-        return_path = return_path.replace("s3://bucketdevel3tropal", "d")
+
+        #* Note: below is kinda hardcoded because it only works with one dataroot_key ("d")
+        dataroot_key = "d"
+        return_path = return_path.replace(server_config.multi_dataset__dataroot[dataroot_key]["dataroot"],dataroot_key)
         return_to = f"{self.web_base_url}/{return_path}"
+        
         # save the return path in the session cookie, accessed in the callback function
         session["oauth_callback_redirect"] = return_to
         response = self.client.authorize_redirect(redirect_uri=callbackurl)
