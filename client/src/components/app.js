@@ -23,24 +23,42 @@ import Login from "./cnag_login";
   loading: state.controls.loading,
   error: state.controls.error,
   graphRenderCounter: state.controls.graphRenderCounter,
-  loggedIn: state.controls.loggedIn
+  loggedIn: state.controls.loggedIn,
+  token: state.controls.token,
 }))
 class App extends React.Component {
   componentDidMount() {
-    const { dispatch } = this.props;
-
     /* listen for url changes, fire one when we start the app up */
     window.addEventListener("popstate", this._onURLChanged);
     this._onURLChanged();
-
-    // TODO
-    // only allow doInitalDataLoad if user is logged in via Keycloak
-    // if (cnag_auth.user.authenticated) {
-      // dispatch(actions.doInitialDataLoad(window.location.search));
-    // }
-
-    dispatch(actions.doInitialDataLoad(window.location.search));
     this.forceUpdate();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { loggedIn: prevLoggedIn } = prevProps;
+    const { dispatch, loggedIn} = this.props;
+
+    console.log("prevLoggedIn :>> ", prevLoggedIn);
+    console.log("loggedIn :>> ", loggedIn);
+
+    // console.log('auth.getToken() :>> ', cnag_auth.getToken());
+    // console.log('token :>> ', token);
+
+    // only allow doInitalDataLoad if user is logged in via Keycloak
+    // TODO
+    // Handover the token to the server
+    if (prevLoggedIn === false && loggedIn === true) {
+
+      console.log("prevLoggedIn === false && loggedIn === true")
+
+      // console.log('auth.getToken() :>> ', cnag_auth.getToken());
+      // console.log('token :>> ', token);
+
+
+
+      dispatch(actions.doInitialDataLoad(window.location.search));
+      this.forceUpdate();
+    }
   }
 
   _onURLChanged() {
@@ -54,9 +72,7 @@ class App extends React.Component {
     return (
       <Container>
         <Helmet title="cellxgene" />
-        {loggedIn ? null : (
-            <Login />
-        )}
+        {loggedIn ? null : <Login />}
         {loading ? (
           <div
             style={{
@@ -81,7 +97,8 @@ class App extends React.Component {
             error loading cellxgene
           </div>
         ) : null}
-        {loading || error ||loggedIn ? null : (
+
+        {loading || error ? null : (
           <Layout>
             <LeftSideBar />
             {(viewportRef) => (

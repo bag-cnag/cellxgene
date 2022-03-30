@@ -2,6 +2,8 @@ import _ from "lodash";
 /* XXX: cough, cough, ... */
 import { postNetworkErrorToast } from "../components/framework/toasters";
 
+import store from "../reducers/index";
+
 /*
 dispatch an action error to the user.   Currently we use
 async toasts.
@@ -30,6 +32,19 @@ export function catchErrorsWrap(fn, dispatchToUser = false) {
   };
 }
 
+const createHeaders = (url,acceptType) => {
+  let headers = new Headers({
+    Accept: acceptType,
+  });
+
+  if (url.includes("/api/v0.2/schema")) {
+    const state = store.getState();
+    const token = state.controls.token;
+    headers.append("Authorization", token);
+  }
+  return headers;
+};
+
 /*
 Wrapper to perform async fetch with some modest error handling
 and decoding.
@@ -38,20 +53,21 @@ const doFetch = async (url, acceptType) => {
   try {
     const res = await fetch(url, {
       method: "get",
-      headers: new Headers({
-        Accept: acceptType,
-      }),
+      headers: createHeaders(url,acceptType),
       credentials: "include",
     });
     if (res.ok && res.headers.get("Content-Type").includes(acceptType)) {
+      console.log(`res`, res);
       return res;
     }
     // else an error
+    console.log("unexpected response from server");
     const msg = `Unexpected HTTP response ${res.status}, ${res.statusText}`;
     dispatchNetworkErrorMessageToUser(msg);
     throw new Error(msg);
   } catch (e) {
     // network error
+    console.log("unexpected HTTP error");
     const msg = "Unexpected HTTP error";
     dispatchNetworkErrorMessageToUser(msg);
     throw e;

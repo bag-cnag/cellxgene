@@ -25,28 +25,23 @@ RUN npm --version
 FROM base AS build
 
 ADD . /cellxgene
-<<<<<<< HEAD
-
 WORKDIR /cellxgene/client
 
-RUN npm -f install
+RUN npm -f install build
 
+WORKDIR /cellxgene
 # This is only working if on the machine creating the docker cotainer
 # make build-for-server-dev has been run
-RUN cp build/index.html server/common/web/templates/ && \
-	cp -r build/static server/common/web/
+RUN cp client/build/index.html server/common/web/templates/ && \
+	cp -r client/build/static server/common/web/
 
-WORKDIR cellxgene
+RUN pip install -e . --no-cache-dir 
 
-RUN pip install -e .
-# RUN pip install pyroscope-io==0.4.0
+# ---- pyroscope ----
+# https://medium.com/dabbler-in-de-stress/how-pyroscope-saved-me-weeks-of-wasted-effort-dc99aeaf29e9
+COPY --from=pyroscope/pyroscope:latest /usr/bin/pyroscope /usr/bin/pyroscope
 
 # ---- run ----
 FROM build as run
 
 EXPOSE 5005
-<<<<<<< HEAD
-=======
-
->>>>>>> token
-# ENTRYPOINT [ "sh" ]

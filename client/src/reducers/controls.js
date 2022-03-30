@@ -1,6 +1,7 @@
 // jshint esversion: 6
 
 import _ from "lodash";
+import cnag_auth from "../components/cnag_auth";
 import { subsetAndResetGeneLists } from "../util/stateManager/controlsHelpers";
 
 const Controls = (
@@ -9,6 +10,7 @@ const Controls = (
     loading: true,
     error: null,
     loggedIn: false,
+    token: null,
 
     // all of the data + selection state
     userDefinedGenes: [],
@@ -33,7 +35,16 @@ const Controls = (
     console.error(action.error);
   }
 
+  console.log('pinned dispatched :>> ', action);
+
   switch (action.type) {
+    case "set login status true":{
+      return {
+        ...state, 
+        loggedIn: true,
+        token: cnag_auth.getToken()
+      };
+    }
     case "initial data load start": {
       return { ...state, loading: true };
     }

@@ -69,11 +69,10 @@ cxg.env
 cnag.mk
 cnag_getKCTokens.sh
 
-#general new files
 cnag_utils/
 
 #server new files
-server/app/kc_config.py
+server/app/config.py
 server/app/CNAG_security.py
 server/app/config.py
 

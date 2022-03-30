@@ -4,6 +4,8 @@ import sys
 from http import HTTPStatus
 import zlib
 
+import requests
+
 from flask import make_response, jsonify, current_app, abort
 from werkzeug.urls import url_unquote
 
@@ -23,6 +25,10 @@ import json
 from server.data_common.fbs.matrix import decode_matrix_fbs
 
 from server.app.CNAG_security import cnag_login_required
+
+from server.app.config import warehouse_file_api as file_api
+
+# from memory_profiler import profile
 
 
 def abort_and_log(code, logmsg, loglevel=logging.DEBUG, include_exc_info=False):
@@ -100,25 +106,54 @@ def _query_parameter_to_filter(args):
 
     return result
 
-
-def schema_get_helper(data_adaptor):
+# @profile
+@cnag_login_required
+def schema_get_helper(data_adaptor,userid, groups, projects,token):
     """helper function to gather the schema from the data source and annotations"""
-    schema = data_adaptor.get_schema()
-    schema = copy.deepcopy(schema)
 
-    # add label obs annotations as needed
-    annotations = data_adaptor.dataset_config.user_annotations
-    if annotations is not None:
-        label_schema = annotations.get_schema(data_adaptor)
-        schema["annotations"]["obs"]["columns"].extend(label_schema)
+    # get uri from class data_adaptor - example:test_3tr_v1_pbmc3k.h5ad
+    uri = data_adaptor.uri_path.split("/")[-1]
+    
+    dataset_id,owner,version,fname = uri.split("_")
+    data = {
+        "name": fname,
+        "version": version[1:],
+        "dataset_id": dataset_id,
+        "owner": owner,
+    }
 
-    return schema
+    res = requests.post(file_api, json = data, headers={"Authorization":token})
+    res_msg = json.loads(res.content.decode("utf8"))["message"]
+    print (res_msg)
+
+    if res_msg == "no file with that name or version exist":
+        # TODO return error message to client
+        pass
+
+    if res.status_code == 200 and res_msg == uri:
+        print("success")
+        
+        schema = data_adaptor.get_schema()
+        schema = copy.deepcopy(schema)
+
+        # add label obs annotations as needed
+        annotations = data_adaptor.dataset_config.user_annotations
+        if annotations is not None:
+            label_schema = annotations.get_schema(data_adaptor)
+            schema["annotations"]["obs"]["columns"].extend(label_schema)
+
+        return schema
 
 
 # TODO 
 # in app.js figure out where the request to 
 # schema_get is triggered and how to hand to it the
 # the correct keycloak authorization
+
+# TODO
+# figure out how to hand over a url to get the data from ceph
+# so we do not need to launch the server with a specific CEPH path
+# pointing to the data
 
 @cnag_login_required
 def schema_get(data_adaptor,userid, groups, projects):

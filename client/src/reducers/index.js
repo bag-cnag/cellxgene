@@ -1,4 +1,6 @@
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
+import devToolsEnhancer from 'remote-redux-devtools'
+
 import thunk from "redux-thunk";
 
 import cascadeReducers from "./cascade";
@@ -60,6 +62,27 @@ const Reducer = undoable(
   undoableConfig
 );
 
-const store = createStore(Reducer, applyMiddleware(thunk, annoMatrixGC));
+// works with vscode remote-redux-devtools
+// first run npm run redux-devtools
+const store = createStore(
+  Reducer,
+  compose(
+    applyMiddleware(thunk, annoMatrixGC),
+    devToolsEnhancer({
+    realtime: true,
+    name: 'cellxgene',
+    hostname: 'localhost',
+    port: 8000
+    })
+  )
+)
+// works with Firefox 
+// const store = createStore(
+//   Reducer,
+//   compose(
+//     applyMiddleware(thunk, annoMatrixGC),
+//     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+//   )
+// )
 
 export default store;
