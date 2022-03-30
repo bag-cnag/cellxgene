@@ -322,14 +322,25 @@ class AuthTypeOAuth(AuthTypeClientBase):
                 }
         if rsa_key:
             try:
+                # for cnag
                 payload = jwt.decode(
                     id_token,
                     rsa_key,
                     algorithms=self.algorithms,
                     audience=self.audience,
-                    issuer=self.oauth_api_base_url + "/",
+                    issuer=self.oauth_api_base_url,
                     options=self.jwt_decode_options,
                 )
+
+                # original
+                # payload = jwt.decode(
+                #     id_token,
+                #     rsa_key,
+                #     algorithms=self.algorithms,
+                #     audience=self.audience,
+                #     issuer=self.oauth_api_base_url + "/",
+                #     options=self.jwt_decode_options,
+                # )
                 return payload
 
             except ExpiredSignatureError:
