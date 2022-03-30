@@ -25,7 +25,6 @@ RUN npm --version
 FROM base AS build
 
 ADD . /cellxgene
-<<<<<<< HEAD
 
 WORKDIR /cellxgene/client
 
@@ -45,8 +44,5 @@ RUN pip install -e .
 FROM build as run
 
 EXPOSE 5005
-<<<<<<< HEAD
-=======
 
->>>>>>> token
 # ENTRYPOINT [ "sh" ]

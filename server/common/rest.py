@@ -112,25 +112,39 @@ def schema_get_helper(data_adaptor,userid, groups, projects,token):
     """helper function to gather the schema from the data source and annotations"""
 
     # get uri from class data_adaptor - example:test_3tr_v1_pbmc3k.h5ad
-    uri = data_adaptor.uri_path.split("/")[-1]
+    uri = data_adaptor.uri_path.rsplit
+    owner,dataset_id,fname = data_adaptor.uri_path.rsplit('/')[3:]
     
-    dataset_id,owner,version,fname = uri.split("_")
+    # FIXME
+    # this will not work if the filenames has underscores in the name
+
+    # TODO
+    # rewrite CEPH structure as follows:
+    # <owner>/<dataset_id>/<filename>/<version>/<filename_uploadedVersion_#>
+
     data = {
-        "name": fname,
-        "version": version[1:],
+        "name": fname.split('_')[0],
+        "version": fname.split('_')[2].split('.')[0],
         "dataset_id": dataset_id,
-        "owner": owner,
+        "owner": owner
     }
 
-    res = requests.post(file_api, json = data, headers={"Authorization":token})
-    res_msg = json.loads(res.content.decode("utf8"))["message"]
-    print (res_msg)
+    # dataset_id,owner,version,fname = uri.split("_")
+    # data = {
+    #     "name": fname,
+    #     "version": version[1:],
+    #     "dataset_id": dataset_id,
+    #     "owner": owner,
+    # }
 
-    if res_msg == "no file with that name or version exist":
+    res = requests.post(file_api, json = data, headers={"Authorization":token})
+
+    if res.status_code == 404:
+        res_msg = json.loads(res.content.decode("utf8"))["message"]
         # TODO return error message to client
         pass
 
-    if res.status_code == 200 and res_msg == uri:
+    if res.status_code == 200:
         print("success")
         
         schema = data_adaptor.get_schema()
@@ -156,7 +170,7 @@ def schema_get_helper(data_adaptor,userid, groups, projects,token):
 # pointing to the data
 
 @cnag_login_required
-def schema_get(data_adaptor,userid, groups, projects):
+def schema_get(data_adaptor,userid, groups, projects, token):
 # def schema_get(data_adaptor):
     schema = schema_get_helper(data_adaptor)
     return make_response(jsonify({"schema": schema}), HTTPStatus.OK)
