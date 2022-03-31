@@ -106,13 +106,14 @@ def _query_parameter_to_filter(args):
 
     return result
 
+
 # @profile
 @cnag_login_required
-def schema_get_helper(data_adaptor,userid, groups, projects,token):
+def schema_get_helper(data_adaptor, userid, groups, projects, token):
     """helper function to gather the schema from the data source and annotations"""
 
-    owner,dataset_id,fname = data_adaptor.uri_path.rsplit('/')[3:]
-    
+    owner, dataset_id, fname = data_adaptor.uri_path.rsplit("/")[3:]
+
     # FIXME
     # this will not work if the filename has _uploadedVersion_ in the filename
 
@@ -121,21 +122,17 @@ def schema_get_helper(data_adaptor,userid, groups, projects,token):
     # <owner>/<dataset_id>/<filename>/<version>/<filename_uploadedVersion_#>
 
     data = {
-        "name": fname.split('_uploadedVersion_')[0],
-        "version": fname.rsplit('_')[-1].split('.')[0],
+        "name": fname.split("_uploadedVersion_")[0],
+        "version": fname.rsplit("_")[-1].split(".")[0],
         "dataset_id": dataset_id,
-        "owner": owner
+        "owner": owner,
     }
-    res = requests.post(file_api, json = data, headers={"Authorization":token})
+    res = requests.post(file_api, json=data, headers={"Authorization": token}, timeout=10)
 
     if res.status_code == 404:
-        res_msg = json.loads(res.content.decode("utf8"))["message"]
-        # TODO return error message to client
-        pass
+        return None
 
     if res.status_code == 200:
-        print("success")
-        
         schema = data_adaptor.get_schema()
         schema = copy.deepcopy(schema)
 
@@ -147,10 +144,14 @@ def schema_get_helper(data_adaptor,userid, groups, projects,token):
 
         return schema
 
+
 @cnag_login_required
-def schema_get(data_adaptor,userid, groups, projects, token):
-# def schema_get(data_adaptor):
+def schema_get(data_adaptor, userid, groups, projects, token):
     schema = schema_get_helper(data_adaptor)
+
+    if schema is None:
+        return make_response(jsonify({"message": "file not found"}), HTTPStatus.NOT_FOUND)
+
     return make_response(jsonify({"schema": schema}), HTTPStatus.OK)
 
 

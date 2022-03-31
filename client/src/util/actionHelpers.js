@@ -32,7 +32,7 @@ export function catchErrorsWrap(fn, dispatchToUser = false) {
   };
 }
 
-const createHeaders = (url,acceptType) => {
+const createHeaders = (url, acceptType) => {
   let headers = new Headers({
     Accept: acceptType,
   });
@@ -53,7 +53,7 @@ const doFetch = async (url, acceptType) => {
   try {
     const res = await fetch(url, {
       method: "get",
-      headers: createHeaders(url,acceptType),
+      headers: createHeaders(url, acceptType),
       credentials: "include",
     });
     if (res.ok && res.headers.get("Content-Type").includes(acceptType)) {
@@ -68,7 +68,20 @@ const doFetch = async (url, acceptType) => {
   } catch (e) {
     // network error
     console.log("unexpected HTTP error");
-    const msg = "Unexpected HTTP error";
+    console.log(e);
+
+    let msg = "Unexpected HTTP error";
+    console.log(e.message);
+
+    // FIXME
+    // temporary hack to show an error message when the user is not authorized to view a file
+    // (e.g. the file is not public or it is not shared with the user's keycloak group)
+    // it has to be tested if that error message is thrown in other cases as well
+    // and if that is confusing the users 
+
+    if (e.message === "Unexpected HTTP response 404, NOT FOUND") {
+      msg = "Your user is not authorized to view that file";
+    }
     dispatchNetworkErrorMessageToUser(msg);
     throw e;
   }
