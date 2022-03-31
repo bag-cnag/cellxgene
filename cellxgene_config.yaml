@@ -160,7 +160,7 @@ dataset:
         db_uri: null
         hosted_file_directory: null
     local_file_csv:
-      directory: null
+      directory: data
       file: null
     ontology:
       enable: false
