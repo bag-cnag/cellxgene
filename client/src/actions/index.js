@@ -85,9 +85,19 @@ function prefetchEmbeddings(annoMatrix) {
 /*
 Application bootstrap
 */
+// cnag
+const setLoginStatusTrue = () => {
+  return {
+    type: "set login status true",
+    status: true,
+  }
+};
+
 const doInitialDataLoad = () =>
   catchErrorsWrap(async (dispatch) => {
     dispatch({ type: "initial data load start" });
+
+    // TODO
 
     try {
       const [config, schema] = await Promise.all([
@@ -236,6 +246,7 @@ function fetchJson(pathAndQuery) {
 }
 
 export default {
+  setLoginStatusTrue,
   doInitialDataLoad,
   requestDifferentialExpression,
   requestSingleGeneExpressionCountsForColoringPOST,

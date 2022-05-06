@@ -65,6 +65,9 @@ class TestServerConfig(ConfigTests):
         config = self.get_config()
         self.assertEqual(config.server_config.data_locator__s3__region_name, "us-east-1")
         # incorrectly formatted
+
+        # ISSUE for CNAG
+        # cellxgene does not support s3://3tr/test[...]
         datapath = "s3://shouldnt/work"
         file_name = self.custom_app_config(
             dataset_datapath=datapath, config_file_name=self.config_file_name, data_locater_region_name="true"

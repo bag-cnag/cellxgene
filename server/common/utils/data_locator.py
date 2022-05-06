@@ -47,7 +47,14 @@ class DataLocator:
                 config_kwargs = dict(region_name=region_name)
                 self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30, config_kwargs=config_kwargs)
             else:
-                self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30)
+                # https://github.com/fsspec/filesystem_spec/issues/518
+                # maybe I need to handover key, secret and endpoint_url?
+                # self.fs = fsspec.filesystem(self.protocol, listings_expiry_time=30)
+                self.fs = fsspec.filesystem(
+                    self.protocol, listings_expiry_time=30,
+                    key=os.getenv("AWS_ACCESS_KEY_ID"), secret=os.getenv("AWS_SECRET_ACCESS_KEY"), 
+                    client_kwargs={"endpoint_url": os.getenv("ENDPOINT_URL")}
+                    )
         else:
             self.fs = fsspec.filesystem(self.protocol)
 
@@ -139,16 +146,20 @@ def discover_s3_region_name(uri):
     protocol, _ = DataLocator._get_protocol_and_path(uri)
     if protocol == "s3":
         bucket = urlparse(uri).netloc
-        client = boto3.client("s3")
+        client = boto3.client("s3",endpoint_url=os.getenv('ENDPOINT_URL'))
+        bucket = os.getenv('BUCKET_NAME')
         try:
             res = client.head_bucket(Bucket=bucket)
-        except botocore.exceptions.ClientError:
+        except botocore.exceptions.ClientError as e:
             return None
 
+        # CEPH has no region therefor a fake region will be supplied
         region = res.get("ResponseMetadata", {}).get("HTTPHeaders", {}).get("x-amz-bucket-region")
         if region:
             return region
         else:
-            return None
+            # Fake region for CEPH
+            # return None
+            return "us-east-1"
 
     return None

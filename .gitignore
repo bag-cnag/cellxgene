@@ -56,6 +56,12 @@ client/.eslintcache
 ignoreE2E*
 
 # CNAG specific files
+
+# make sure that this does NEVER end up in the repo
+# because there could be the secret of ceph be inside
+.vscode/launch.json
+
+CNAG_TODO.md
 server/app/kc_config.py
 server/app/CNAG_security.py
 cnag_getKCTokens.sh
@@ -63,3 +69,9 @@ kc.env
 .env
 vscode.env
 cnag.mk
+client/public/config.js
+client/configuration/webpack/config.json
+
+client/src/components/cnag_auth.js
+client/src/components/cnag_login.js
+client/src/components/cnag_route.js

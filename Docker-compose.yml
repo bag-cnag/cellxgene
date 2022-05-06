@@ -1,6 +1,9 @@
 version: "3.3"
 services:
   cellxgene_dev:
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
     build:
         context: .
         dockerfile: Dockerfile_dev

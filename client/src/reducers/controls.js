@@ -6,6 +6,7 @@ const Controls = (
     // data loading flag
     loading: true,
     error: null,
+    loggedIn: false,
 
     // all of the data + selection state
     userDefinedGenes: [],

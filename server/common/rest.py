@@ -118,8 +118,10 @@ def schema_get_helper(data_adaptor):
 
     return schema
 
+
 @cnag_login_required
 def schema_get(data_adaptor,userid, groups, projects):
+# def schema_get(data_adaptor):
     schema = schema_get_helper(data_adaptor)
     return make_response(jsonify({"schema": schema}), HTTPStatus.OK)
 
