@@ -79,5 +79,5 @@ server/app/config.py
 #client new files
 client/configuration/webpack/config.json
 client/configuration/webpack/config.prod.json
-client/src/components/cnag_login.js
-client/src/components/cnag_auth.js
+#client/src/components/cnag_login.js
+#client/src/components/cnag_auth.js
