@@ -14,6 +14,13 @@ import * as annoActions from "./annotation";
 import * as viewActions from "./viewStack";
 import * as embActions from "./embedding";
 
+function setLoginStatusTrue() {
+  console.log("set login status true");
+  return {
+    type: "set login status true",
+  };
+}
+
 /*
 return promise fetching user-configured colors
 */
@@ -212,6 +219,7 @@ function fetchJson(pathAndQuery) {
 }
 
 export default {
+  setLoginStatusTrue,
   doInitialDataLoad,
   requestDifferentialExpression,
   requestSingleGeneExpressionCountsForColoringPOST,
