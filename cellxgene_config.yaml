@@ -34,7 +34,7 @@ server:
     #! oauth not working
     # Error: error in oauth, api_url_base: https://sso.[...], 
     # cannot access https://sso/.well-known/jwks.json
-    type: oauth
+    type: session
 
     params_oauth:
        # url to the oauth server

@@ -31,14 +31,14 @@ WORKDIR /cellxgene/client
 RUN npm -f install
 
 # This is only working if on the machine creating the docker cotainer
-# make build-for-server-dev has been run
+# make build-for-server-dev has been run (before execute "nvm use 11.10.0")
 RUN cp build/index.html server/common/web/templates/ && \
 	cp -r build/static server/common/web/
 
 WORKDIR cellxgene
 
 RUN pip install -e .
-# RUN pip install pyroscope-io==0.4.0
+# RUN pip install pyroscope-io==0.4.0"
 
 # ---- run ----
 FROM build as run

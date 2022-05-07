@@ -11,6 +11,8 @@ process.env.NODE_ENV = "development";
 const CLIENT_PORT = process.env.CXG_CLIENT_PORT;
 const { CXG_SERVER_PORT } = process.env;
 
+console.log('CXG_SERVER_PORT', CXG_SERVER_PORT)
+
 const API = {
   prefix: `http://localhost:${CXG_SERVER_PORT}/`,
 };

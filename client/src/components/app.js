@@ -59,6 +59,10 @@ class App extends React.Component {
       dispatch(actions.doInitialDataLoad(window.location.search));
       this.forceUpdate();
     }
+
+    // check if it works w/o login
+    dispatch(actions.doInitialDataLoad(window.location.search));
+    this.forceUpdate();
   }
 
   _onURLChanged() {

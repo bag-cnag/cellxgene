@@ -146,6 +146,7 @@ def schema_get_helper(data_adaptor, userid, groups, projects, token):
 
 
 @cnag_login_required
+# bug it never reaches here
 def schema_get(data_adaptor, userid, groups, projects, token):
     schema = schema_get_helper(data_adaptor)
 
