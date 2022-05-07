@@ -73,8 +73,7 @@ cnag_utils/
 
 #server new files
 server/app/config.py
-server/app/CNAG_security.py
-server/app/config.py
+#server/app/CNAG_security.py
 
 #client new files
 client/configuration/webpack/config.json

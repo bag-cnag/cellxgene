@@ -47,11 +47,10 @@ class Login extends Component {
           authenticated,
           keycloak,
         };
+        cnag_auth.setToken(appState);
 
         console.log(store.getState())
         store.dispatch(actions.setLoginStatusTrue())
-        
-        cnag_auth.setToken(appState);
         // this.props.history.push(window.location.href.split("=")[1]);
       });
   }

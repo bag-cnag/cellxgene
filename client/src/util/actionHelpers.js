@@ -38,8 +38,10 @@ const createHeaders = (url, acceptType) => {
   });
 
   if (url.includes("/api/v0.2/schema")) {
+    console.log("adding auth header");
     const state = store.getState();
     const token = state.controls.token;
+    console.log("token", token);
     headers.append("Authorization", token);
   }
   return headers;
