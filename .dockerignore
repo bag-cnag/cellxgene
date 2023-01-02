@@ -2,6 +2,6 @@ bin
 #client
 client/node_modules/
 client/package-lock.json
-dist
+# dist
 docs
 #server

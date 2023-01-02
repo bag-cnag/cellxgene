@@ -1,5 +1,5 @@
 include common.mk
-include cnag.mk
+# include cnag.mk
 
 BUILDDIR := build
 CLIENTBUILD := $(BUILDDIR)/client
@@ -95,7 +95,7 @@ lint-client:
 
 .PHONY: pydist
 pydist: build
-	cd $(BUILDDIR); python setup.py sdist -d ../dist
+	cd $(BUILDDIR); python3 setup.py sdist -d ../dist
 	@echo "done"
 
 
