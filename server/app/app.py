@@ -377,6 +377,8 @@ def handle_api_base_url(app, app_config):
     script_name = f"api_base_url-{sha256}.js"
     script_path = os.path.join(app.root_path, "../common/web/templates", script_name)
     with open(script_path, "w") as fout:
+        print("handle_api_base_url")
+        print("window.CELLXGENE.API.prefix = `" + api_base_url + "${location.pathname}api/`;\n")
         fout.write("window.CELLXGENE.API.prefix = `" + api_base_url + "${location.pathname}api/`;\n")
 
     dataset_configs = [app_config.default_dataset_config] + list(app_config.dataroot_config.values())
@@ -410,10 +412,13 @@ class Server:
 
         api_version = "/api/v0.2"
         api_base_url = server_config.get_api_base_url()
+        print("server init")
+        print("api_base_url",api_base_url)
         api_path = "/"
         if api_base_url:
             parse = urlparse(api_base_url)
             api_path = parse.path
+            print("api_path",api_path)
 
         bp_base = Blueprint("bp_base", __name__, url_prefix=api_path)
         base_resources = get_api_base_resources(bp_base)

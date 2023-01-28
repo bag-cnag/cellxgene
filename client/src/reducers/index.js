@@ -64,6 +64,8 @@ const Reducer = undoable(
 
 // works with vscode remote-redux-devtools
 // first run npm run redux-devtools
+
+// remove devToolsEnhancer before a production build
 const store = createStore(
   Reducer,
   compose(

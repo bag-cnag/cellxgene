@@ -8,5 +8,5 @@ config for 3TR
 
 kc_config = dict(
     JWT_OPTIONS = {"verify_exp": False, "verify_aud": False},
-    IDRSA = "MIIB..."
+    IDRSA = "MII..."
 )

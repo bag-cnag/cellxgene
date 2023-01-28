@@ -207,7 +207,7 @@ def decode_matrix_fbs(fbs):
     """
     Given an FBS-encoded Matrix, return a Pandas DataFrame the contains the data and indices.
     """
-
+    print("decode_matrix_fbs")
     matrix = Matrix.Matrix.GetRootAsMatrix(fbs, 0)
     n_rows = matrix.NRows()
     n_cols = matrix.NCols()
@@ -245,4 +245,5 @@ def decode_matrix_fbs(fbs):
     if not df.columns.is_unique or len(df.columns) != n_cols:
         raise KeyError("FBS column indices are not unique")
 
+    print("df",df)
     return df

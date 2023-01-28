@@ -80,3 +80,6 @@ client/configuration/webpack/config.json
 client/configuration/webpack/config.prod.json
 #client/src/components/cnag_login.js
 #client/src/components/cnag_auth.js
+
+*.crt
+.aws

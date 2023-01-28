@@ -88,8 +88,19 @@ const CXG_SERVER_PORT =
 
 let _API;
 
+// TODO
+// figure out where window.CELLXGENE is set
+
+// how to see the value of window:
+// open a console in the browser and enter:
+// "window" -> press enter to see the set values
+
+
 if (window.CELLXGENE && window.CELLXGENE.API) {
-  _API = window.CELLXGENE.API;
+  _API = {
+    prefix: window.CELLXGENE.API.prefix.replace("http://0.0.0.0:5005",'https://yourcellxgeneurl.com'),
+    version: "v0.2/"
+  }
 } else {
   if (CXG_SERVER_PORT === undefined) {
     const errorMessage = "Please set the CXG_SERVER_PORT environment variable.";
@@ -101,7 +112,7 @@ if (window.CELLXGENE && window.CELLXGENE.API) {
     // prefix: "http://api.clustering.czi.technology/api/",
     // prefix: "http://tabulamuris.cxg.czi.technology/api/",
     // prefix: "http://api-staging.clustering.czi.technology/api/",
-    prefix: `http://localhost:${CXG_SERVER_PORT}/api/`,
+    //prefix: `http://localhost:${CXG_SERVER_PORT}/api/`,
     version: "v0.2/",
   };
 }
