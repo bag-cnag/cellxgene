@@ -20,7 +20,7 @@ def extract_items(token, name):
     Get information from Keycloak like e.g. keycloak groups
     """
 
-    print(token)
+    # print(token)
     if token.get(name) is not None:
         return [s.replace("/", "") for s in token.get(name)]
 
@@ -34,17 +34,22 @@ def cnag_login_required(func):
     """
 
     # test it using curl
-    # curl localhost:5005/api/v0.2/schema --header Authorization:eyJhbG...'
-
+    # curl localhost:5005/api/v0.2/schema --header Authorization:eyJhbG...
     @wraps(func)
     def decorated_function(*args, **kwargs):
-        token = request.headers["Authorization"]
+        print(request.headers)
+        token = request.headers["authorization"]
+        print(token)
         groups = []
         try:
+            # print(public_key)
+            print("options",options)
             decoded = jwt.decode(
                 token, public_key, algorithms="RS256", options=options
             )
+            print(decoded)
             groups = [s.replace("/", "") for s in decoded.get("group")]
+            # print(groups)
         
         except jwt.exceptions.InvalidAlgorithmError as e:
             # If this exception is triggered it is likely

@@ -63,12 +63,20 @@ class AnnotationsHostedTileDB(Annotations):
         annotation_object = self.db.query_for_most_recent(
             Annotation, [Annotation.user_id == user_id, Annotation.dataset_id == dataset_id]
         )
+        print ("annotation_object",annotation_object)
         if annotation_object:
             if annotation_object.tiledb_uri == "":
                 # this mean the user has removed all the categories.
                 return None
             try:
-                df = tiledb.open(annotation_object.tiledb_uri)
+                # the context here seems to be missing
+                config = tiledb.Config()
+                config["vfs.s3.scheme"] = "http"
+                config["vfs.s3.region"] = ""
+                config["vfs.s3.endpoint_override"] = "ceph-docker-ip:8000"
+                config["vfs.s3.use_virtual_addressing"] = "false"
+
+                df = tiledb.open(annotation_object.tiledb_uri, config=config)
             except tiledb.TileDBError:
                 # don't crash if the annotations file is missing or can't be read.
                 current_app.logger.warning(f"Cannot read annotation file: {annotation_object.tiledb_uri}")
@@ -142,9 +150,27 @@ class AnnotationsHostedTileDB(Annotations):
             self.check_category_names(df)
             # convert to tiledb datatypes
 
+            # https://docs.tiledb.com/main/how-to/backends/minio
+            config = tiledb.Config()
+            config["vfs.s3.scheme"] = "http"
+            config["vfs.s3.region"] = ""
+            config["vfs.s3.endpoint_override"] = "ceph-docker-ip:8000"
+            config["vfs.s3.use_virtual_addressing"] = "false"
+
+            # Create context
+            ctx = tiledb.Ctx(config)
+
+            i = 0
             for col in df:
                 df[col] = df[col].astype(get_dtype_of_array(df[col]))
-            tiledb.from_pandas(uri, df, sparse=True)
+                print("i",i,"col",col)
+                i=i+1
+
+            tiledb.from_pandas(uri, df, sparse=True, ctx=ctx)
+            # tiledb.from_pandas(uri, df, sparse=True)
+            # ! it crashed here:
+            # Exception:  InvalidAccessKeyId
+            # Error message:  The AWS Access Key Id you provided does not exist in our records.
         else:
             uri = ""
 

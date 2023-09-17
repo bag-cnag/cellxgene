@@ -127,6 +127,11 @@ def schema_get_helper(data_adaptor, userid, groups, projects, token):
         "dataset_id": dataset_id,
         "owner": owner,
     }
+
+    print("schema_get_helper")
+    # print("data",data)
+    # print("token", token)
+
     res = requests.post(file_api, json=data, headers={"Authorization": token}, timeout=10)
 
     if res.status_code == 404:
@@ -188,7 +193,9 @@ def annotations_obs_get(request, data_adaptor):
 
 def annotations_put_fbs_helper(data_adaptor, fbs):
     """helper function to write annotations from fbs"""
+    print("annotations_put_fbs_helper")
     annotations = data_adaptor.dataset_config.user_annotations
+    print("annotations3",annotations)
     if annotations is None:
         raise DisabledFeatureError("Writable annotations are not enabled")
 
@@ -196,30 +203,42 @@ def annotations_put_fbs_helper(data_adaptor, fbs):
     if not new_label_df.empty:
         new_label_df = data_adaptor.check_new_labels(new_label_df)
     annotations.write_labels(new_label_df, data_adaptor)
+    print("annotations_put_fbs_helper FINISH")
 
 
 def inflate(data):
+    # print("inflate data",data)
     return zlib.decompress(data)
 
 
 def annotations_obs_put(request, data_adaptor):
+    print("annotations_obs_put")
+    print("request",request)
+    print("data_adaptor",data_adaptor)
     annotations = data_adaptor.dataset_config.user_annotations
+    print("annotations",annotations)
     if annotations is None:
         return abort(HTTPStatus.NOT_IMPLEMENTED)
 
     anno_collection = request.args.get("annotation-collection-name", default=None)
+    print("anno_collection",anno_collection)
     fbs = inflate(request.get_data())
+    print("after func inflate")
 
     if anno_collection is not None:
         if not annotations.is_safe_collection_name(anno_collection):
             return abort(HTTPStatus.BAD_REQUEST, "Bad annotation collection name")
         annotations.set_collection(anno_collection)
+        print("annotations2",annotations)
 
     try:
+        print("try")
         annotations_put_fbs_helper(data_adaptor, fbs)
         res = json.dumps({"status": "OK"})
+        print("res",res)
         return make_response(res, HTTPStatus.OK, {"Content-Type": "application/json"})
     except (ValueError, DisabledFeatureError, KeyError) as e:
+        print("abort and log")
         return abort_and_log(HTTPStatus.BAD_REQUEST, str(e), include_exc_info=True)
 
 

@@ -6,6 +6,14 @@ import json
 import requests
 import base64
 
+from server.app.kc_config import kc_config as kc
+idrsa = kc["IDRSA"]
+# options = app.config["JWT_OPTIONS"]
+public_key = (
+    "-----BEGIN PUBLIC KEY-----\n" + idrsa + "\n-----END PUBLIC KEY-----"
+)
+
+
 # It is not required to have authlib or jose.
 # However, it is a configuration error to use this auth type if they are not installed.
 missingimport = []
@@ -15,8 +23,14 @@ except ModuleNotFoundError:
     missingimport.append("authlib")
 
 try:
-    from jose import jwt
-    from jose.exceptions import ExpiredSignatureError, JWTError, JWTClaimsError
+    # maybe PyJWT works better?!
+    import jwt
+    from jwt.exceptions import ExpiredSignatureError
+    # from jwt.exceptions import ExpiredSignatureError, JWTError, JWTClaimsError
+
+
+    # from jose import jwt
+    # from jose.exceptions import ExpiredSignatureError, JWTError, JWTClaimsError
 except ModuleNotFoundError:
     missingimport.append("jose")
 
@@ -122,6 +136,8 @@ class AuthTypeOAuth(AuthTypeClientBase):
         return True
 
     def add_url_rules(self, app):
+        print("add_url_rules")
+        print("self.api_base_url",self.api_base_url)
         parse = urlparse(self.api_base_url)
         app.add_url_rule(f"{parse.path}/login", "login", self.login, methods=["GET"])
         app.add_url_rule(f"{parse.path}/logout", "logout", self.logout, methods=["GET"])
@@ -144,8 +160,6 @@ class AuthTypeOAuth(AuthTypeClientBase):
 
             # maybe this resolves: Missing "jwks_uri" in metadata
             server_metadata_url=f"{self.oauth_api_base_url}/.well-known/openid-configuration",
-            # !no because if that is added it fails at 
-            # response = self.client.authorize_redirect(redirect_uri=callbackurl)
 
             # original
             # refresh_token_url=f"{self.oauth_api_base_url}/oauth/token",
@@ -185,16 +199,22 @@ class AuthTypeOAuth(AuthTypeClientBase):
         # export "CURL_CA_BUNDLE"=""
 
         callbackurl = f"{self.api_base_url}/oauth2/callback"
+        # print("login")
+        # print("callbackurl",callbackurl)
         return_path = request.args.get("dataset", "")
+        # print("return_path1",return_path)
 
         #* Note: below is kinda hardcoded because it only works with one dataroot_key ("d")
         dataroot_key = "d"
         return_path = return_path.replace(server_config.multi_dataset__dataroot[dataroot_key]["dataroot"],dataroot_key)
+        # print("return_path2",return_path)
         return_to = f"{self.web_base_url}/{return_path}"
+        # print("return_to",return_to)
         
         # save the return path in the session cookie, accessed in the callback function
         session["oauth_callback_redirect"] = return_to
         response = self.client.authorize_redirect(redirect_uri=callbackurl)
+        # print("response",response)
         self.update_response(response)
         return response
 
@@ -204,35 +224,63 @@ class AuthTypeOAuth(AuthTypeClientBase):
         the redirect `returnTo` path be whitelisted by the oauth server, therefore a level of
         indirection is used.  We first redirect to a single path "logout_redirect", and logout_redirect
         will redirect the user's browser back to the current page.
-        """
+        """    
+    
+        print("logout")
+        print("request",request)
+
+        # !TODO
+        # the logout is not yet working
+        #! looks like that the logout can only be fixed
+        #on localhost, directly on the virtual machine it is not working
+        #since it does redirect immediately without
+        #showing any of the print statements
+
         self.remove_tokens()
         redirect_path = request.args.get("dataset", "")
+        print("redirect_path",redirect_path)
         redirect_to = f"{self.web_base_url}/{redirect_path}"
+        print("redirect_to",redirect_to)
         session["oauth_logout_redirect"] = redirect_to
+        print("session",session)
 
         return_to = f"{self.api_base_url}/logout_redirect"
+        print("return_to",return_to)
         params = {"returnTo": return_to, "client_id": self.client_id}
-        response = redirect(self.client.api_base_url + "/v2/logout?" + urlencode(params))
+        print("params",params)
+        print("redirect",self.client.api_base_url + "/logout?" + urlencode(params))
+        response = redirect(self.client.api_base_url + "/logout?" + urlencode(params))
+        print("response",response)
+        # response = redirect(self.client.api_base_url + "/v2/logout?" + urlencode(params))
         self.update_response(response)
+        # return None
         return response
 
     def logout_redirect(self):
+        print("logout_redirect")
         oauth_logout_redirect = session.pop("oauth_logout_redirect", "/")
+        print("oauth_logout_redirect",oauth_logout_redirect)
         response = redirect(oauth_logout_redirect)
+        print("response",response)
         self.update_response(response)
         return response
 
     def callback(self):
+        # print("callback")
         data = self.client.authorize_access_token(verify=False)
+        # print("data",data)
         tokens = Tokens(
             access_token=data.get("access_token"),
             id_token=data.get("id_token"),
             refresh_token=data.get("refresh_token"),
             expires_at=data.get("expires_at"),
         )
+        # print("tokens",tokens)
         self.save_tokens(tokens)
         oauth_callback_redirect = session.pop("oauth_callback_redirect", "/")
+        # print("oauth_callback_redirect", oauth_callback_redirect)
         response = redirect(oauth_callback_redirect)
+        # print("response",response)
         self.update_response(response)
         return response
 
@@ -284,14 +332,21 @@ class AuthTypeOAuth(AuthTypeClientBase):
                 return response
 
     def remove_tokens(self):
+        print("remove tokens")
         g.pop("tokens", None)
+        print("g",g)
+        print("cookie",self.session_cookie)
         if self.session_cookie:
+            print("cookie yes")
+            print("session",session)
             if self.CXG_TOKENS in session:
+                print("CXG_TOKENS",self.CXG_TOKENS)
+                print("del session tokens")
                 del session[self.CXG_TOKENS]
         else:
-
             @after_this_request
             def remove_cookie(response):
+                print("remove cookie")
                 response.set_cookie(self.cookie_params["key"], "", expires=0)
                 self.update_response(response)
                 return response
@@ -299,6 +354,8 @@ class AuthTypeOAuth(AuthTypeClientBase):
     def get_login_url(self, data_adaptor):
         """Return the url for the login route"""
         if data_adaptor and current_app.app_config.is_multi_dataset():
+            print("get_login_url")
+            print("self.api_base_url",self.api_base_url)
             return f"{self.api_base_url}/login?dataset={data_adaptor.uri_path}/"
         else:
             return f"{self.api_base_url}/login"
@@ -311,12 +368,22 @@ class AuthTypeOAuth(AuthTypeClientBase):
             return f"{self.api_base_url}/logout"
 
     def check_jwt_payload(self, id_token):
+
+        # print("id_token",id_token)
+
         try:
             unverified_header = jwt.get_unverified_header(id_token)
-        except JWTError:
+            print("unverified_header",unverified_header)
+        # except JWTError:
+        #     print("JWTError")
+        #     return None
+        except Exception as e:
+            print(e)
+            print("JWT Error")
             return None
 
         rsa_key = {}
+        # print("self.jwks.keys",self.jwks["keys"])
         for key in self.jwks["keys"]:
             if key["kid"] == unverified_header["kid"]:
                 rsa_key = {
@@ -326,12 +393,20 @@ class AuthTypeOAuth(AuthTypeClientBase):
                     "n": key.get("n"),
                     "e": key.get("e"),
                 }
+
+        # print("rsa_key",rsa_key)
         if rsa_key:
             try:
+                # print("public_key",public_key)
+                # print("algo",self.algorithms)
+                # print("audience",self.audience)
+                # print("issuer",self.oauth_api_base_url + "/")
+                # print("options",self.jwt_decode_options)
+                
                 # for cnag
                 payload = jwt.decode(
                     id_token,
-                    rsa_key,
+                    public_key,
                     algorithms=self.algorithms,
                     audience=self.audience,
                     issuer=self.oauth_api_base_url,
@@ -347,18 +422,21 @@ class AuthTypeOAuth(AuthTypeClientBase):
                 #     issuer=self.oauth_api_base_url + "/",
                 #     options=self.jwt_decode_options,
                 # )
+                # print("payload",payload)
                 return payload
 
             except ExpiredSignatureError:
                 # This exception is handled in get_userinfo
                 raise
+
+            except Exception as e:
+                print(e)
+                raise AuthenticationError(f"invalid signature {str(e)}") from e
             
-            # runs into JWTClaimsError
-            # jwt.decode -> Jose.exceptions.JWTClaimsError: Invalid issuer
-            except JWTClaimsError as e:
-                raise AuthenticationError(f"invalid claims {str(e)}") from e
-            except JWTError as e:
-                raise AuthenticationError(f"invalid signature: {str(e)}") from e
+            # except JWTClaimsError as e:
+            #     raise AuthenticationError(f"invalid claims {str(e)}") from e
+            # except JWTError as e:
+            #     raise AuthenticationError(f"invalid signature: {str(e)}") from e
 
         raise AuthenticationError("Unable to find the appropriate key")
 
@@ -390,8 +468,10 @@ class AuthTypeOAuth(AuthTypeClientBase):
                 try:
                     g.userinfo = self.check_jwt_payload(tokens.id_token)
                     return g.userinfo
-                except JWTError as e:
+                except Exception as e:
                     raise AuthenticationError(f"error during token refresh: {str(e)}") from e
+                # except JWTError as e:
+                #     raise AuthenticationError(f"error during token refresh: {str(e)}") from e
 
         except AuthenticationError:
             self.remove_tokens()

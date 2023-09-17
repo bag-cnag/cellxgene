@@ -72,7 +72,7 @@ cnag_getKCTokens.sh
 cnag_utils/
 
 #server new files
-server/app/config.py
+#server/app/config.py
 #server/app/CNAG_security.py
 
 #client new files
@@ -80,3 +80,6 @@ client/configuration/webpack/config.json
 client/configuration/webpack/config.prod.json
 #client/src/components/cnag_login.js
 #client/src/components/cnag_auth.js
+
+*.crt
+.aws

@@ -452,7 +452,8 @@ def launch(
             debug=server_config.app__debug,
             port=server_config.app__port,
             threaded=not server_config.app__debug,
-            use_debugger=True,
+            use_debugger=False,
+            # use_debugger=True
             use_reloader=False,
         )
     except OSError as e:

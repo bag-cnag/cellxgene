@@ -6,9 +6,11 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - ENDPOINT_URL=${ENDPOINT_URL}
       - BUCKET_NAME=${BUCKET_NAME}
+      - CXG_OAUTH_CLIENT_API_URL=${CXG_OAUTH_CLIENT_API_URL}
+      - CXG_OAUTH_CLIENT_SECRET=${CXG_OAUTH_CLIENT_SECRET}
+      - CURL_CA_BUNDLE=""
     build:
         context: .
-        dockerfile: Dockerfile_dev
     ports:
         - 5005:5005
     tty: True
@@ -33,6 +35,7 @@ services:
     # ]
 
     command: ["sh"]
+    # command: ["cellxgene","launch","-c","config.yaml","-v"]
 
     # Test it with
     # http://localhost:5005/d/pbmc3k.h5ad_uploadedVersion_1.h5ad/
