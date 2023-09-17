@@ -37,3 +37,7 @@ services:
     # Test it with
     # http://localhost:5005/d/pbmc3k.h5ad_uploadedVersion_1.h5ad/
     # http://localhost:5005/d/pbmc3k_copy.h5ad_uploadedVersion_1.h5ad/
+    
+
+    # *test it with:
+    # http://localhost:5005/d/3tr/test/pbmc3k.h5ad_uploadedVersion_1.h5ad/

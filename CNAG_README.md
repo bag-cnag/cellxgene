@@ -6,7 +6,8 @@ Secrets still needed to be hardcoded:
 - IDRSA in server/app/kc_config.py
 
 Steps:
-- nvm use 11.10.0 
+<!-- - nvm use 11.10.0  -->
+- nvm use 10.24.1
 - make build-for-server-dev
 - vscode: run and debug => flask(cellxgene)*
 
